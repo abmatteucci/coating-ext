@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="js/cdn.jsdelivr.net_npm_chart.js"></script>
+    <link rel="stylesheet" href="css/styles.css">
+    <title>COAT-Ext</title>
+</head>
+<body>
+    <div class="container">
+        <div class="headers">
+            <h1>COAT-Ext</h1>
+        </div>
+        <div class="content">
+
+            <table id="tabelaFormularios" style="display: none;">
+                <thead>
+                    <tr>
+                        <th>ItemID</th>
+                        <th>JobID</th>
+                        <th>Qty. Wires</th>
+                        <th>Quantidade de Racks</th>
+                        <th>Racks Pintados</th>
+                        <th>Test Rack</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Os dados serão preenchidos dinamicamente aqui -->
+                </tbody>
+            </table>
+            
+
+            <button id="addButton">Adicionar Novo Formulário</button>
+            <div id="formulario" style="display: none;">
+                <select id="itemID" name="itemID">
+                    <option value="">Selecione um produto...</option>
+                </select>
+                <input type="text" id="jobID" placeholder="JobID">
+                <input type="text" name="" id="qtyJobWires" placeholder="Qty. wires">
+                <input type="number" id="quantidadeRacks" placeholder="Quantidade de Racks">
+                <input type="number" id="racksPintados" placeholder="Racks Pintados">
+                <label>
+                <input type="checkbox" id="testRack">
+                    Test Rack
+                </label>
+                <button id="submitButton">Enviar</button>
+            </div>
+            <div style="width: 400px; height: 200px;">
+                <canvas id="graficoBarras" style="display: none;"></canvas>
+            </div>
+            <table id="descricaoJobTable" style="display: none;">
+                <thead>
+                    <tr>
+                        <th colspan="2">Descrição do Job</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Detalhes do Job serão preenchidos aqui -->
+                </tbody>
+            </table>
+        </div>
+        <div class="footers"></div>
+    </div>
+    <script src="js/popup.js"></script>
+</body>
+</html>

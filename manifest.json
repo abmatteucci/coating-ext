@@ -1,0 +1,13 @@
+{
+    "manifest_version": 3,
+    "name": "COAT-Ext",
+    "version": "0.0.0.1",
+    "description": "Coat team extension for Microsoft Edge.",
+    "permissions": ["activeTab", "storage"],
+    "host_permissions": [
+        "https://cdn.jsdelivr.net/npm/chart.js"
+      ],
+    "action": {
+        "default_popup": "popup/popup.html"
+    }
+}
