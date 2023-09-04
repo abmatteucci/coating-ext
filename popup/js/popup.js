@@ -441,6 +441,14 @@ function deleteJobs(formData){
     }
 };
 
+function getLastJobSavedEndTime(){
+    var endTime = 0;
+    jobs.forEach(function (job){
+        job.endTimePrevision > endTime ? endTime = job.endTimePrevision : endTime;
+    });
+    return endTime;
+}
+
 function criarJobs(formData) {
     var jobs = [];
     var actualTime = Date.now();
@@ -855,3 +863,5 @@ function calcularHorasRestantes(date) {
 
 // var horasRestantes = calcularHorasRestantes();
 // console.log("Horas Restantes no Turno Atual:", horasRestantes);
+console.log("Horário abs. do último job: " + getLastJobSavedEndTime());
+console.log("Data do último job: " + new Date(getLastJobSavedEndTime()));
