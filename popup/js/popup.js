@@ -581,8 +581,16 @@ function exibirGrafico(index, jobs) {
     formulario = listaDeFormularios[index];
     thisJob = [];
     jobs.forEach(function (job){
-        if(job.itemID == formulario.itemID){
-            thisJob.push(job);
+        //if(job.jobID == formulario.jobID){
+        var dataAtualAbs = Date.now();
+        var shift = identificarPeriodoDeTrabalho(dataAtualAbs, shifts);
+        var jobTime = new Date(parseInt(job.startTime));
+        var maxShiftTime = new Date(dataAtualAbs);
+        maxShiftTime.setHours((parseInt(shift.period.end) -1), 59, 59, 999);
+        var minShiftTime = new Date(dataAtualAbs);
+        minShiftTime.setHours(parseInt(shift.period.start), 0, 0, 0);
+        if (minShiftTime.getTime() <= jobTime.getTime() && maxShiftTime.getTime() >= jobTime.getTime()){
+                thisJob.push(job);
         };
     });
 
@@ -590,7 +598,7 @@ function exibirGrafico(index, jobs) {
     // ver o gráfico preditivo do job. Após a bateria de testes, devemos modificar essa estrutura.
     var dataTestes = new Date(thisJob[0].startTime);
     // Precisamos ser capazes de variar o horário na dataTestes. Aqui, avançamos 2 horas na dataTeste.
-    var tempoTeste = dataTestes.getTime() + (2 * 60 * 60 * 1000);
+    var tempoTeste = dataTestes.getTime() + (10 * 60 * 60 * 1000);
     // Criamos um outro objeto Date dataTestesVariada que é definida para testes.
     var dataTestesVariada = new Date(tempoTeste);
 
@@ -604,27 +612,30 @@ function exibirGrafico(index, jobs) {
         var job = thisJob[i];
         var dataAtualAbs = Date.now();
         var dataAtual = new Date(parseInt(job.startTime));
+        var dataAtualNightShift = new Date(parseInt(job.startTime));
+		
         // console.log("Timestamp: " + parseInt(job.startTime));
         // console.log("Data atual: " + dataAtual);
 
-        // Implementando a lógica dos testes. O parâmetro 'date' da função deve ser trocado para 'dataAtualAbs' em produção.
-        var periodoDeTrabalho = identificarPeriodoDeTrabalho(tempoTeste, shifts);
+        // Implementando a lógica dos testes. O parâmetro 'date' em teste deve ser configurado para 'tempoTeste' e deve ser trocado para 'dataAtualAbs' em produção.
+        var periodoDeTrabalho = identificarPeriodoDeTrabalho(dataAtualAbs, shifts);
         var inicioPeriodo = parseInt(periodoDeTrabalho.period.start);
         var fimPeriodo = parseInt(periodoDeTrabalho.period.end);
-
-        
+        dataAtualNightShift.setHours(periodoDeTrabalho.period.start,0,0,0);
+        console.log("Testando condição do Night Shift: " + dataAtual.getTime() > dataAtualNightShift.getTime() + ", e a variável dataAtualNightShift é: " + dataAtualNightShift);
         
 
         //var wiresProduzidos = Math.min(job.qtyJobWires, (i + 1) * 40); // Calcula a produção de wires para esta hora
         if (inicioPeriodo <= dataAtual.getHours() && fimPeriodo > dataAtual.getHours()){
+            var hora = 'das ' + (dataAtual.getHours()) + 'h às ' + 
+            (dataAtual.getHours() >= 23 ? 0 : dataAtual.getHours() + 1) + 'h';
+            labels.push(hora);
+            data.push({ x: i, y: job.qtyJobWires, r: 10 });
+        } else if (dataAtual.getTime() > dataAtualNightShift.getTime() || dataAtual.getHours() < 7){
             var hora = 'das ' + (dataAtual.getHours()) + 'h às ' + (dataAtual.getHours() >= 23 ? 0 : dataAtual.getHours() + 1) + 'h';
             labels.push(hora);
             data.push({ x: i, y: job.qtyJobWires, r: 10 });
-        } else if (dataAtual.getHours() > 23 || dataAtual.getHours() < 7){
-            var hora = 'das ' + (dataAtual.getHours()) + 'h às ' + (dataAtual.getHours() >= 23 ? 0 : dataAtual.getHours() + 1) + 'h';
-            labels.push(hora);
-            data.push({ x: i, y: job.qtyJobWires, r: 10 });
-        }
+        };
         
         
     }
