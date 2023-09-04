@@ -586,9 +586,21 @@ function exibirGrafico(index, jobs) {
         var shift = identificarPeriodoDeTrabalho(dataAtualAbs, shifts);
         var jobTime = new Date(parseInt(job.startTime));
         var maxShiftTime = new Date(dataAtualAbs);
-        maxShiftTime.setHours((parseInt(shift.period.end) -1), 59, 59, 999);
         var minShiftTime = new Date(dataAtualAbs);
-        minShiftTime.setHours(parseInt(shift.period.start), 0, 0, 0);
+        if (shift.name == "Night"){
+            minShiftTime.setHours(parseInt(shift.period.start), 0, 0, 0);
+            maxShiftTime.setHours((parseInt(shift.period.end) -1), 59, 59, 999);
+            if (maxShiftTime.getTime() < dataAtualAbs){
+                maxShiftTime.setDate(parseInt(maxShiftTime.getDate() + 1));
+            } else if (minShiftTime.getTime() > dataAtualAbs){
+                minShiftTime.setDate(parseInt(minShiftTime.getDate() - 1));
+            };
+        } else {
+        
+            maxShiftTime.setHours((parseInt(shift.period.end) -1), 59, 59, 999);
+            minShiftTime.setHours(parseInt(shift.period.start), 0, 0, 0);
+        };
+
         if (minShiftTime.getTime() <= jobTime.getTime() && maxShiftTime.getTime() >= jobTime.getTime()){
                 thisJob.push(job);
         };
@@ -671,7 +683,13 @@ function exibirGrafico(index, jobs) {
                 y: {
                     beginAtZero: true
                 }
-            }
+            },
+            plugins: {
+                title: {
+                  display: true,
+                  text: periodoDeTrabalho.name,
+                }
+              }
         }
     });
 }
