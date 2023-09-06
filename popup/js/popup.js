@@ -160,7 +160,7 @@ let products = [
 	},
 	{
 		name :"Prox Tube",
-		item : "",
+		item : "313419",
 		substractOD: { diameter: 0.375, tolerance: 0},
 		coating_thickness: { thickness_min: null, thickness_max: 0.007 },
 		m_unit: "milimiter",
@@ -443,6 +443,7 @@ function deleteJobs(formData){
 
 function getLastJobSavedEndTime(){
     var endTime = 0;
+    carregarJobsArmazenados();
     jobs.forEach(function (job){
         job.endTimePrevision > endTime ? endTime = job.endTimePrevision : endTime;
     });
@@ -451,9 +452,11 @@ function getLastJobSavedEndTime(){
 
 function criarJobs(formData) {
     var jobs = [];
-    var actualTime = Date.now();
+    let actual = Date.now();
+    var lastJobStartTime = getLastJobSavedEndTime();
+    var actualTime = actual > (lastJobStartTime + (60*60*1000)) ? actual : lastJobStartTime + (60*60*1000);
     var racksDisponiveis = formData.quantidadeRacks;
-    var qtyWiresTotal = formData.qtyJobWires;
+    var qtyWiresTotal = formData.qtyJobWires - (formData.racksPintados * 40);
 
     while (qtyWiresTotal > 0) {
         //console.log("Actual Time in criarJobs(): " + actualTime);
@@ -758,14 +761,14 @@ function exibirGrafico(index, jobs) {
 //                     label: 'Quantidade de Racks',
 //                     data: data,
 //                     backgroundColor: function(context) {
-//                         if (context.dataIndex >= (8 - calcularHorasRestantes())) {
+//                         if (context.dataIndex >= (8 - calcularHorasRestantes(horaAtual))) {
 //                             return 'rgba(255, 0, 0, 0.2)';
 //                         } else {
 //                             return 'rgba(75, 192, 192, 0.2)';
 //                         }
 //                     },
 //                     borderColor: function(context) {
-//                         if (context.dataIndex >= (8 - calcularHorasRestantes())) {
+//                         if (context.dataIndex >= (8 - calcularHorasRestantes(horaAtual))) {
 //                             return 'rgba(255, 0, 0, 0.2)';
 //                         } else {
 //                             return 'rgba(75, 192, 192, 0.2)';
