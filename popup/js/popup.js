@@ -278,7 +278,7 @@ function preencherTabelaFormularios() {
 
         cellItemID.textContent = formulario.itemID;
         cellJobID.textContent = formulario.jobID;
-        cellQtyJobWires = formulario.qtyJobWires;
+        cellQtyJobWires.textContent = formulario.qtyJobWires;
         cellQuantidadeRacks.textContent = formulario.quantidadeRacks;
         cellRacksPintados.textContent = formulario.racksPintados;
         cellTestRack.textContent = formulario.testRack ? 'Sim' : 'Não';
