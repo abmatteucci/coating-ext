@@ -283,34 +283,93 @@ function preencherTabelaFormularios() {
         cellRacksPintados.textContent = formulario.racksPintados;
         cellTestRack.textContent = formulario.testRack ? 'Sim' : 'Não';
 
-        var editarButton = document.createElement('button');
-        editarButton.textContent = 'Editar';
-        editarButton.addEventListener('click', function() {
-            mostrarFormularioEditar(index);
-        });
-        cellAcoes.appendChild(editarButton);
 
-        var verGraficoButton = document.createElement('button');
-        verGraficoButton.textContent = 'Ver Gráfico';
-        verGraficoButton.addEventListener('click', function() {
-            exibirGrafico(index, jobs);
-        });
-        cellAcoes.appendChild(verGraficoButton);
+        // Botão de menu
+        var menuButton = document.createElement('button');
+        menuButton.innerHTML = '<i class="fa-regular fa-square-caret-down"></i>';
+        menuButton.addEventListener('click', function() {
+            var menuOptions = document.getElementById('menuOptions');
+            menuOptions.classList.toggle('hidden');
 
-        // Botão "Descrição do Job"
-        var descricaoJobButton = document.createElement('button');
-        descricaoJobButton.textContent = 'Descrição do Job';
-        descricaoJobButton.addEventListener('click', function() {
-            exibirDescricaoJob(index);
-        });
-        cellAcoes.appendChild(descricaoJobButton);
+            // Passar o índice do formulário para as opções do menu
+            var editarOption = menuOptions.querySelector('.editarOption');
+            var excluirOption = menuOptions.querySelector('.excluirOption');
+            var exibirGraficoOption = menuOptions.querySelector('.exibirGraficoOption');
+            var descriptionOption = menuOptions.querySelector('.descriptionOption');
 
-        var deletarButton = document.createElement('button');
-        deletarButton.textContent = 'Deletar';
-        deletarButton.addEventListener('click', function() {
-            deletarFormulario(index);
+            editarOption.addEventListener('click', function() {
+                mostrarFormularioEditar(index);
+                menuOptions.classList.add('hidden'); // Esconder o menu após a escolha
+            });
+
+            excluirOption.addEventListener('click', function() {
+                deletarFormulario(index);
+                menuOptions.classList.add('hidden'); // Esconder o menu após a escolha
+            });
+
+            exibirGraficoOption.addEventListener('click', function() {
+                exibirGrafico(index, jobs);
+                menuOptions.classList.add('hidden'); // Esconder o menu após a escolha
+            });
+
+            descriptionOption.addEventListener('click', function() {
+                exibirDescricaoJob(index);
+                menuOptions.classList.add('hidden'); // Esconder o menu após a escolha
+            });
         });
-        cellAcoes.appendChild(deletarButton);
+        cellAcoes.appendChild(menuButton);
+
+        // Adicionar opções do menu
+        var menuOptions = document.createElement('ul');
+        menuOptions.classList.add('hidden', 'absolute', 'bg-white', 'border', 'border-gray-300', 'py-2', 'rounded', 'shadow', 'mt-2');
+        menuOptions.id = 'menuOptions';
+
+        var editarOption = document.createElement('li');
+        editarOption.innerHTML = '<a href="#" class="block px-4 py-2 text-gray-800 hover:bg-blue-100 editarOption">Editar</a>';
+        menuOptions.appendChild(editarOption);
+
+        var excluirOption = document.createElement('li');
+        excluirOption.innerHTML = '<a href="#" class="block px-4 py-2 text-gray-800 hover:bg-blue-100 excluirOption">Excluir</a>';
+        menuOptions.appendChild(excluirOption);
+
+        var exibirGraficoOption = document.createElement('li');
+        exibirGraficoOption.innerHTML = '<a href="#" class="block px-4 py-2 text-gray-800 hover:bg-blue-100 exibirGraficoOption">Exibir Gráfico</a>';
+        menuOptions.appendChild(exibirGraficoOption);
+
+        var descriptionOption = document.createElement('li');
+        descriptionOption.innerHTML = '<a href="#" class="block px-4 py-2 text-gray-800 hover:bg-blue-100 descriptionOption">Descrição</a>';
+        menuOptions.appendChild(descriptionOption);
+
+        cellAcoes.appendChild(menuOptions);
+
+        // var editarButton = document.createElement('button');
+        // editarButton.textContent = 'Editar';
+        // editarButton.addEventListener('click', function() {
+        //     mostrarFormularioEditar(index);
+        // });
+        // cellAcoes.appendChild(editarButton);
+
+        // var verGraficoButton = document.createElement('button');
+        // verGraficoButton.textContent = 'Ver Gráfico';
+        // verGraficoButton.addEventListener('click', function() {
+        //     exibirGrafico(index, jobs);
+        // });
+        // cellAcoes.appendChild(verGraficoButton);
+
+        // // Botão "Descrição do Job"
+        // var descricaoJobButton = document.createElement('button');
+        // descricaoJobButton.textContent = 'Descrição do Job';
+        // descricaoJobButton.addEventListener('click', function() {
+        //     exibirDescricaoJob(index);
+        // });
+        // cellAcoes.appendChild(descricaoJobButton);
+
+        // var deletarButton = document.createElement('button');
+        // deletarButton.textContent = 'Deletar';
+        // deletarButton.addEventListener('click', function() {
+        //     deletarFormulario(index);
+        // });
+        // cellAcoes.appendChild(deletarButton);
     });
 
     tabelaFormularios.style.display = 'block';

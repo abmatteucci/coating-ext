@@ -4,17 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="js/cdn.jsdelivr.net_npm_chart.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="css/styles.css">
     <title>COAT-Ext</title>
 </head>
-<body>
-    <div class="container">
+<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+    <div class="container max-w-md bg-white p-8 rounded shadow-lg">
         <div class="headers">
-            <h1>COAT-Ext</h1>
+            <h1 class="text-2xl font-bold mb-6 text-center">COAT-Ext</h1>
         </div>
         <div class="content">
 
-            <table id="tabelaFormularios" style="display: none;">
+            <table id="tabelaFormularios" class="table-auto w-full mb-6" style="display: none;">
                 <thead>
                     <tr>
                         <th>ItemID</th>
@@ -32,8 +34,8 @@
             </table>
             
 
-            <button id="addButton">Adicionar Novo Formulário</button>
-            <div id="formulario" style="display: none;">
+            <button id="addButton" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full mb-6">Adicionar Novo Formulário</button>
+            <div id="formulario" class="mb-6 hidden" style="display: none;">
                 <select id="itemID" name="itemID">
                     <option value="">Selecione um produto...</option>
                 </select>
@@ -47,10 +49,10 @@
                 </label>
                 <button id="submitButton">Enviar</button>
             </div>
-            <div style="width: 400px; height: 200px;">
-                <canvas id="graficoBarras" style="display: none;"></canvas>
+            <div class="w-64 h-32 mx-auto mb-6" style="width: 400px; height: 200px;">
+                <canvas id="graficoBarras" class="w-full h-full" style="display: none;"></canvas>
             </div>
-            <table id="descricaoJobTable" style="display: none;">
+            <table id="descricaoJobTable" class="table-auto w-full hidden" style="display: none;">
                 <thead>
                     <tr>
                         <th colspan="2">Descrição do Job</th>
