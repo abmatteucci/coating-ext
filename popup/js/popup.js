@@ -676,53 +676,95 @@ function exibirGrafico(index, jobs) {
         };
     });
 
-    // Cria uma variável que só deve ser usada em testes. Precisamos simular que estamos no início do job para 
-    // ver o gráfico preditivo do job. Após a bateria de testes, devemos modificar essa estrutura.
-    var dataTestes = new Date(thisJob[0].startTime);
-    // Precisamos ser capazes de variar o horário na dataTestes. Aqui, avançamos 2 horas na dataTeste.
-    var tempoTeste = dataTestes.getTime() + (10 * 60 * 60 * 1000);
-    // Criamos um outro objeto Date dataTestesVariada que é definida para testes.
-    var dataTestesVariada = new Date(tempoTeste);
+    if (thisJob.length > 0) {
 
-    console.log("Data atual durante o teste: " + dataTestesVariada);
+        // Cria uma variável que só deve ser usada em testes. Precisamos simular que estamos no início do job para 
+        // ver o gráfico preditivo do job. Após a bateria de testes, devemos modificar essa estrutura.
+        var dataTestes = new Date(thisJob[0].startTime);
+        // Precisamos ser capazes de variar o horário na dataTestes. Aqui, avançamos 2 horas na dataTeste.
+        var tempoTeste = dataTestes.getTime() + (10 * 60 * 60 * 1000);
+        // Criamos um outro objeto Date dataTestesVariada que é definida para testes.
+        var dataTestesVariada = new Date(tempoTeste);
 
-    var horaShiftStartTeste = thisJob[0].startShift.period.start;
+        console.log("Data atual durante o teste: " + dataTestesVariada);
+
+        var horaShiftStartTeste = thisJob[0].startShift.period.start;
 
 
-    //console.log("Display thisJob.lenght: " + thisJob.length)
-    for (var i = 0; i < thisJob.length; i++) {
-        var job = thisJob[i];
-        var dataAtualAbs = Date.now();
-        var dataAtual = new Date(parseInt(job.startTime));
-        var dataAtualNightShift = new Date(parseInt(job.startTime));
-		
-        // console.log("Timestamp: " + parseInt(job.startTime));
-        // console.log("Data atual: " + dataAtual);
+        //console.log("Display thisJob.lenght: " + thisJob.length)
+        for (var i = 0; i < thisJob.length; i++) {
+            var job = thisJob[i];
+            var dataAtualAbs = Date.now();
+            var dataAtual = new Date(parseInt(job.startTime));
+            var dataAtualNightShift = new Date(parseInt(job.startTime));
+            
+            // console.log("Timestamp: " + parseInt(job.startTime));
+            // console.log("Data atual: " + dataAtual);
 
-        // Implementando a lógica dos testes. O parâmetro 'date' em teste deve ser configurado para 'tempoTeste' e deve ser trocado para 'dataAtualAbs' em produção.
-        var periodoDeTrabalho = identificarPeriodoDeTrabalho(dataAtualAbs, shifts);
-        var inicioPeriodo = parseInt(periodoDeTrabalho.period.start);
-        var fimPeriodo = parseInt(periodoDeTrabalho.period.end);
-        dataAtualNightShift.setHours(periodoDeTrabalho.period.start,0,0,0);
-        console.log("Testando condição do Night Shift: " + dataAtual.getTime() > dataAtualNightShift.getTime() + ", e a variável dataAtualNightShift é: " + dataAtualNightShift);
-        
+            // Implementando a lógica dos testes. O parâmetro 'date' em teste deve ser configurado para 'tempoTeste' e deve ser trocado para 'dataAtualAbs' em produção.
+            var periodoDeTrabalho = identificarPeriodoDeTrabalho(dataAtualAbs, shifts);
+            var inicioPeriodo = parseInt(periodoDeTrabalho.period.start);
+            var fimPeriodo = parseInt(periodoDeTrabalho.period.end);
+            dataAtualNightShift.setHours(periodoDeTrabalho.period.start,0,0,0);
+            console.log("Testando condição do Night Shift: " + dataAtual.getTime() > dataAtualNightShift.getTime() + ", e a variável dataAtualNightShift é: " + dataAtualNightShift);
+            
 
-        //var wiresProduzidos = Math.min(job.qtyJobWires, (i + 1) * 40); // Calcula a produção de wires para esta hora
-        if (inicioPeriodo <= dataAtual.getHours() && fimPeriodo > dataAtual.getHours()){
-            var hora = 'das ' + (dataAtual.getHours()) + 'h às ' + 
-            (dataAtual.getHours() >= 23 ? 0 : dataAtual.getHours() + 1) + 'h';
-            labels.push(hora);
-            data.push({ x: i, y: job.qtyJobWires, r: 10 });
-        } else if (dataAtual.getTime() > dataAtualNightShift.getTime() || dataAtual.getHours() < 7){
-            var hora = 'das ' + (dataAtual.getHours()) + 'h às ' + (dataAtual.getHours() >= 23 ? 0 : dataAtual.getHours() + 1) + 'h';
-            labels.push(hora);
-            data.push({ x: i, y: job.qtyJobWires, r: 10 });
-        };
-        
-        
-    }
-    console.log("Horas até o final do shift: " + calcularHorasRestantes(tempoTeste));
-    console.log("Horas para finalizar o job: " + qtyRacksToIntMiliseconds(getFormDataFromJob(thisJob[thisJob.length - 1], listaDeFormularios)) / (60 * 60 * 1000))
+            //var wiresProduzidos = Math.min(job.qtyJobWires, (i + 1) * 40); // Calcula a produção de wires para esta hora
+            if (inicioPeriodo <= dataAtual.getHours() && fimPeriodo > dataAtual.getHours()){
+                var hora = 'das ' + (dataAtual.getHours()) + 'h às ' + 
+                (dataAtual.getHours() >= 23 ? 0 : dataAtual.getHours() + 1) + 'h';
+                labels.push(hora);
+                data.push({ x: i, y: job.qtyJobWires, r: 10 });
+            } else if (dataAtual.getTime() > dataAtualNightShift.getTime() || dataAtual.getHours() < 7){
+                var hora = 'das ' + (dataAtual.getHours()) + 'h às ' + (dataAtual.getHours() >= 23 ? 0 : dataAtual.getHours() + 1) + 'h';
+                labels.push(hora);
+                data.push({ x: i, y: job.qtyJobWires, r: 10 });
+            };
+            
+            
+        }
+    } else {
+        thisJob = []
+        jobs.forEach( function (job){
+            if(job.jobID == formulario.jobID){
+                thisJob.push(job);
+            }
+        });
+
+        for (var i = 0; i < thisJob.length; i++) {
+            var job = thisJob[i];
+            var dataAtualAbs = Date.now();
+            var dataAtual = new Date(parseInt(job.startTime));
+            var dataAtualNightShift = new Date(parseInt(job.startTime));
+            
+            // console.log("Timestamp: " + parseInt(job.startTime));
+            // console.log("Data atual: " + dataAtual);
+
+            // Implementando a lógica dos testes. O parâmetro 'date' em teste deve ser configurado para 'tempoTeste' e deve ser trocado para 'dataAtualAbs' em produção.
+            var periodoDeTrabalho = identificarPeriodoDeTrabalho(dataAtualAbs, shifts);
+            var inicioPeriodo = parseInt(periodoDeTrabalho.period.start);
+            var fimPeriodo = parseInt(periodoDeTrabalho.period.end);
+            dataAtualNightShift.setHours(periodoDeTrabalho.period.start,0,0,0);
+            console.log("Testando condição do Night Shift: " + dataAtual.getTime() > dataAtualNightShift.getTime() + ", e a variável dataAtualNightShift é: " + dataAtualNightShift);
+            
+
+            //var wiresProduzidos = Math.min(job.qtyJobWires, (i + 1) * 40); // Calcula a produção de wires para esta hora
+            if (inicioPeriodo <= dataAtual.getHours() && fimPeriodo > dataAtual.getHours()){
+                var hora = 'das ' + (dataAtual.getHours()) + 'h às ' + 
+                (dataAtual.getHours() >= 23 ? 0 : dataAtual.getHours() + 1) + 'h';
+                labels.push(hora);
+                data.push({ x: i, y: job.qtyJobWires, r: 10 });
+            } else if (dataAtual.getTime() > dataAtualNightShift.getTime() || dataAtual.getHours() < 7){
+                var hora = 'das ' + (dataAtual.getHours()) + 'h às ' + (dataAtual.getHours() >= 23 ? 0 : dataAtual.getHours() + 1) + 'h';
+                labels.push(hora);
+                data.push({ x: i, y: job.qtyJobWires, r: 10 });
+            };
+            
+            
+        }
+    };
+    //console.log("Horas até o final do shift: " + calcularHorasRestantes(tempoTeste));
+    //console.log("Horas para finalizar o job: " + qtyRacksToIntMiliseconds(getFormDataFromJob(thisJob[thisJob.length - 1], listaDeFormularios)) / (60 * 60 * 1000))
 
     chart = new Chart(ctx, {
         type: 'bar', // Use 'line' chart para mostrar a produção acumulada
