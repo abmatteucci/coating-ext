@@ -939,16 +939,16 @@ function identificarProximoPeriodoDeTrabalho(date, shifts) {
 
 // Função para calcular a quantidade de horas restantes no turno atual
 function calcularHorasRestantes(date) {
-    var horaAtual = date;
+    var horaAtual = Date.now();
     var proximoTurno = identificarProximoPeriodoDeTrabalho(horaAtual, shifts);
     console.log("Próximo turno: " + proximoTurno.name + " se inicia às: " + proximoTurno.period.start)
     // Crie uma nova data com a mesma data que a atual, mas com a hora do início do próximo turno
     var horaInicioProximoTurno = new Date(horaAtual);
     
-    // if (proximoTurno.period.start > proximoTurno.period.end) {
-    //     // Se for Night shift, adicione um dia à data
-    //     horaInicioProximoTurno.setDate(horaInicioProximoTurno.getDate() + 1);
-    // }
+    if (proximoTurno.period.start > proximoTurno.period.end) {
+        // Se for Night shift, adicione um dia à data
+        horaInicioProximoTurno.setDate(horaInicioProximoTurno.getDate() + 1);
+    }
 
     horaInicioProximoTurno.setHours(proximoTurno.period.start);
 
