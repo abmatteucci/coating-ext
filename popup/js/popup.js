@@ -341,35 +341,6 @@ function preencherTabelaFormularios() {
         menuOptions.appendChild(descriptionOption);
 
         cellAcoes.appendChild(menuOptions);
-
-        // var editarButton = document.createElement('button');
-        // editarButton.textContent = 'Editar';
-        // editarButton.addEventListener('click', function() {
-        //     mostrarFormularioEditar(index);
-        // });
-        // cellAcoes.appendChild(editarButton);
-
-        // var verGraficoButton = document.createElement('button');
-        // verGraficoButton.textContent = 'Ver Gráfico';
-        // verGraficoButton.addEventListener('click', function() {
-        //     exibirGrafico(index, jobs);
-        // });
-        // cellAcoes.appendChild(verGraficoButton);
-
-        // // Botão "Descrição do Job"
-        // var descricaoJobButton = document.createElement('button');
-        // descricaoJobButton.textContent = 'Descrição do Job';
-        // descricaoJobButton.addEventListener('click', function() {
-        //     exibirDescricaoJob(index);
-        // });
-        // cellAcoes.appendChild(descricaoJobButton);
-
-        // var deletarButton = document.createElement('button');
-        // deletarButton.textContent = 'Deletar';
-        // deletarButton.addEventListener('click', function() {
-        //     deletarFormulario(index);
-        // });
-        // cellAcoes.appendChild(deletarButton);
     });
 
     tabelaFormularios.style.display = 'block';
@@ -774,14 +745,14 @@ function exibirGrafico(index, jobs) {
                 label: 'Produção Acumulada de Wires',
                 data: data,
                 backgroundColor: function(context) {
-                    if (context.dataIndex >= (8 - calcularHorasRestantes(fimPeriodo))) {
+                    if (context.dataIndex >= (8 - calcularHorasRestantes())) {
                         return 'rgba(255, 0, 0, 0.2)';
                     } else {
                         return 'rgba(75, 192, 192, 0.2)';
                     }
                 },
                 borderColor: function(context) {
-                    if (context.dataIndex >= (8 - calcularHorasRestantes(fimPeriodo))) {
+                    if (context.dataIndex >= (8 - calcularHorasRestantes())) {
                         return 'rgba(255, 0, 0, 0.2)';
                     } else {
                         return 'rgba(75, 192, 192, 0.2)';
@@ -938,7 +909,7 @@ function identificarProximoPeriodoDeTrabalho(date, shifts) {
 }
 
 // Função para calcular a quantidade de horas restantes no turno atual
-function calcularHorasRestantes(date) {
+function calcularHorasRestantes() {
     var horaAtual = Date.now();
     var proximoTurno = identificarProximoPeriodoDeTrabalho(horaAtual, shifts);
     console.log("Próximo turno: " + proximoTurno.name + " se inicia às: " + proximoTurno.period.start)
