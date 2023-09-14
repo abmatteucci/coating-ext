@@ -291,10 +291,21 @@ function mostrarFormulario() {
     formulario.style.display = 'block';
 }
 
+function pegarUltimosCincoItens(lista) {
+    if (lista.length >= 5) {
+        return lista.slice(-5); // Retorna os últimos 5 elementos da lista
+    } else {
+        return lista; // Se a lista tiver menos de 5 elementos, retorna a lista inteira
+    }
+}
+
+var lastForms = pegarUltimosCincoItens(listaDeFormularios);
+
 function preencherTabelaFormularios() {
     var tabelaFormularios = document.getElementById('tabelaFormularios');
     var tbody = tabelaFormularios.querySelector('tbody');
     tbody.innerHTML = ''; // Limpar a tabela antes de preencher
+
 
     listaDeFormularios.forEach(function(formulario, index) {
         var row = tbody.insertRow();
@@ -483,7 +494,7 @@ function processarFormulario() {
 
     // Exibir ou usar a mensagem como desejar
     alert(mensagem);
-    console.log(listaDeFormularios);
+    //console.log(listaDeFormularios);
 
     // Depois de processar o formulário, você pode ocultar novamente o formulário
     var formulario = document.getElementById('formulario');
