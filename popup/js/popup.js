@@ -19,6 +19,36 @@ let job = {
     finished: false
 };
 
+let incs = [
+		{
+			itemDescription: "XYLAN 8110 / G0871 Black",
+			itemID: "256100",
+			ptfe_color: "black",
+			ptfe_viscosity: { ideal_time: 17, tolerance: 2, mu: "seconds", min_temperature: 21, mu_temperature: "Celsius" },
+			solvent: { itemID: "256883", item_description: "Whitford Solvent 99B", lot: "", expire_date: "" },
+			expire_date: "",
+			lot_number: ""  
+		},
+		{
+			itemDescription: "Xylan 8110 / F2032 Reed Green",
+			itemID: "263199",
+			ptfe_color: "green",
+			ptfe_viscosity: { ideal_time: 17, tolerance: 2, mu: "seconds", min_temperature: 21, mu_temperature: "Celsius" },
+			solvent: { itemID: "501165-03", item_description: "Whitford Solvent 93", lot: "", expire_date: "" },
+			expire_date: "",
+			lot_number: ""  
+		},
+		{
+			itemDescription: "XYLAMED 8110 M-D14454 Blue",
+			itemID: "308697",
+			ptfe_color: "blue",
+			ptfe_viscosity: { ideal_time: 23, tolerance: 2, mu: "seconds", min_temperature: 21, mu_temperature: "Celsius" },
+			solvent: { itemID: "256883", item_description: "Whitford Solvent 99B", lot: "", expire_date: "" },
+			expire_date: "",
+			lot_number: ""  
+		}
+];
+
 let products = [
 	{ 
 		name :"Braun IV",
