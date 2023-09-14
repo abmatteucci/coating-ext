@@ -440,7 +440,7 @@ function processarFormulario() {
     preencherTabelaFormularios();
 
     // Realizar as operações desejadas com as informações
-    var racksNaoPintados = formData.quantidadeRacks - formData.racksPintados;
+    var racksNaoPintados = parseInt(formData.qtyJobWires / 40) - formData.racksPintados;
     var mensagem =
         "ItemID: " + formData.itemID +
         "\nJobID: " + formData.jobID +
@@ -461,14 +461,17 @@ function processarFormulario() {
 }
 
 function deleteJobs(formData){
-    for (let i = 0; i < jobs.length; i++) {
-        if (jobs[i].jobID === formData.jobID) {
-            console.log("Job a ser excluído: " + jobs[i].startShift);
-            jobs.splice(i, 1);
+    //console.log("Ver 'jobs': " + jobs);
+    jobs.forEach(function (job, index){
+        if (job.jobID == formData.jobID) {
+            console.log("Job a ser excluído: " + job.startShift.name);
+            jobs.splice(index, 1);
             // Após remover o elemento, você deve diminuir o índice (i) em 1 para continuar a iteração corretamente.
-            i--;
+            console.log("jobs.lenght: " + jobs.length);
         }
-    }
+        console.log("jobs.lenght outside if: " + jobs.length);
+    });
+    salvarJobsNoLocalStorage(jobs);
 };
 
 function getLastJobSavedEndTime(){
@@ -589,16 +592,9 @@ function salvarJobsNoLocalStorage() {
 function deletarFormulario(index) {
     listaDeFormularios.splice(index, 1); // Remove o formulário da lista pelo índice
     salvarDadosArmazenados(); // Salva a lista atualizada no armazenamento
-
+    //var deletedJobID = listaDeFormularios[index].jobID;
     // Encontra o job relacionado ao formulário excluído
-    var deletedJobIndex = jobs.findIndex(function(job) {
-        return job.jobID === deletedFormulario.jobID;
-    });
-
-    if (deletedJobIndex !== -1) {
-        jobs.splice(deletedJobIndex, 1); // Remove o job relacionado
-        salvarJobsNoLocalStorage(); // Salva os jobs atualizados no localStorage
-    }
+    deleteJobs(listaDeFormularios[index]);
     preencherTabelaFormularios(); // Atualiza a tabela na UI
 }
 
@@ -646,7 +642,7 @@ function exibirGrafico(index, jobs) {
                 thisJob.push(job);
         };
     });
-
+    console.log("thisJob.lenght: " + thisJob.length);
     if (thisJob.length > 0) {
 
         // Cria uma variável que só deve ser usada em testes. Precisamos simular que estamos no início do job para 
@@ -657,7 +653,7 @@ function exibirGrafico(index, jobs) {
         // Criamos um outro objeto Date dataTestesVariada que é definida para testes.
         var dataTestesVariada = new Date(tempoTeste);
 
-        console.log("Data atual durante o teste: " + dataTestesVariada);
+        //console.log("Data atual durante o teste: " + dataTestesVariada);
 
         var horaShiftStartTeste = thisJob[0].startShift.period.start;
 
@@ -693,9 +689,9 @@ function exibirGrafico(index, jobs) {
             };
             
             
-        }
+        };
     } else {
-        thisJob = []
+        //thisJob = []
         jobs.forEach( function (job){
             if(job.jobID == formulario.jobID){
                 thisJob.push(job);
@@ -737,6 +733,58 @@ function exibirGrafico(index, jobs) {
     //console.log("Horas até o final do shift: " + calcularHorasRestantes(tempoTeste));
     //console.log("Horas para finalizar o job: " + qtyRacksToIntMiliseconds(getFormDataFromJob(thisJob[thisJob.length - 1], listaDeFormularios)) / (60 * 60 * 1000))
 
+    var jobsIDsList = [];
+
+    // Obtemos a lista de jobIDs
+    thisJob.forEach(function (job){
+        if (!jobsIDsList.includes(job.jobID)){
+            jobsIDsList.push(job.jobID);
+        }
+    });
+    console.log("jobsIDsList: " + jobsIDsList);
+
+    function getIndexForChangeJobID(thisJob, jobsIDsList){
+        var tempID = jobsIDsList[0];
+        var tempIndex = [];
+        thisJob.forEach(function(job, index){
+            if (job.jobID != tempID){
+                tempIndex.push(index);
+                tempID = job.jobID;
+            }
+        });
+        return tempIndex;
+    };
+
+    var indexesList = getIndexForChangeJobID(thisJob, jobsIDsList);
+
+    function generateAnnotations(indexesList){
+        var annotations = [];
+        indexesList.forEach(function (element, index){
+            var annotation = {
+                line1: {
+                    type: 'line',
+                    yMin: 0,
+                    yMax: thisJob[element].qtyJobWires,
+                    mode: 'vertical',
+                    scaleID: 'x',
+                    xMin: labels[element],
+                    xMax: labels[element], // Substitua pelo valor desejado
+                    borderColor: 'red',
+                    borderWidth: 2,
+                    label: {
+                        content: 'Job: ' + thisJob[element].jobID,
+                        enabled: true,
+                        position: 'top'
+                    }
+                }
+            }
+            annotations.push(annotation);
+        });
+        return annotations;
+    }
+
+    var annotations = generateAnnotations(indexesList);
+
     chart = new Chart(ctx, {
         type: 'bar', // Use 'line' chart para mostrar a produção acumulada
         data: {
@@ -771,10 +819,14 @@ function exibirGrafico(index, jobs) {
                 title: {
                   display: true,
                   text: periodoDeTrabalho.name,
+                },
+                annotation: {
+                    annotations: annotations
                 }
               }
         }
     });
+
 }
 // function exibirGrafico(listaDeFormularios, index) {
 //     var graficoCanvas = document.getElementById('graficoBarras');
