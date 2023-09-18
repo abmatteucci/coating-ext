@@ -604,8 +604,8 @@ function carregarJobsArmazenados() {
 };
 
 function qtyRacksToIntMiliseconds(formData){
-    return parseInt((formData.qtyJobWires / 40) / formData.quantidadeRacks) * 
-        (3600 * 1000);
+    return parseInt(((formData.qtyJobWires / 40) / formData.quantidadeRacks) * 
+        (3600 * 1000));
 };
 
 function getFormDataFromJob(job, listaDeFormularios){
@@ -1033,3 +1033,98 @@ function calcularHorasRestantes() {
 // console.log("Horas Restantes no Turno Atual:", horasRestantes);
 console.log("Horário abs. do último job: " + getLastJobSavedEndTime());
 console.log("Data do último job: " + new Date(getLastJobSavedEndTime()));
+
+/*
+Trying solve problem with classes.
+
+Objects in memory:
+1. shifts;
+2. products;
+3. incs;
+*/
+
+class Job {
+
+    constructor (jobID, itemID, startTime, qtyJobWires, qtyRacks) {
+        this.jobID = jobID;
+        this.itemID = itemID;
+        this.startTime = startTime;
+        this.qtyJobWires =qtyJobWires;
+        this.qtyRacks = qtyRacks;
+        this.startShift = this.thisShift(this.startTime);
+        this.endTimePrevision = this.startTime + this.stdTimeToFinish();
+        this.endShift = this.thisShift(this.endTimePrevision);
+        this.isStarted = false;
+        this.isFinished = false;
+        this.finishedWires = 0; 
+    }
+
+    // Setters
+
+    set qtyRacks (qty){
+        this.qtyRacks = qty;
+    }
+
+    set isStarted (value){
+        this.isStarted = value;
+    }
+
+    set isFinished (value){
+        this.isFinished = value;
+    }
+
+    set finishedWires (qtyWires){
+        this.finishedWires = qtyWires;
+    }
+
+    // Getters
+
+    get isStarted(){
+        return this.isStarted;
+    }
+
+    get isFinished(){
+        return this.isFinished;
+    }
+
+    get finishedWires (){
+        return this.finishedWires;
+    }
+
+    stdTimeToFinish(){
+        return parseInt(((this.qtyJobWires / 40) / this.qtyRacks) * (60 * 60 * 1000));
+    }
+
+    static thisShift(date){
+        var horaAtual = new Date(date).getHours();
+        var periodo = null;
+        shifts.find(function (shift){
+            if (horaAtual >= shift.period.start && horaAtual < shift.period.end) {
+                periodo = shift;
+            } else if (horaAtual >= 23 || horaAtual < 7) {
+                periodo = shift;
+            }
+        });
+        return periodo;
+    };
+
+}
+
+/* 
+- We need load jobs from localStorage;
+- When instantiate JobsScheduler, the start and end time and shifts should be setted according the order here defined;
+- The scheduler should setting up the status for all jobs: if isStarted or isFinished;
+- We need a method for get jobs scheduled for current shift;
+- Every update in scheduler must be saved in the localStorage, since this is the way of storage for now;
+-   
+*/
+class JobsScheduler {
+
+    constructor (element){
+
+        // Since jobs was loaded from localStorage('jobs').. Perhaps we should implement this loader just here in constructor method.
+        this.jobs = jobs;
+        this.currentShift = Job.thisShift(Date.now());
+        this.jobs = [];
+    }
+}
