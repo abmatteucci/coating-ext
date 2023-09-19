@@ -70,6 +70,16 @@ let products = [
 
 	},
 	{
+		name :"JW",
+		item : "313420",
+		substractOD: { diameter: 0.675, tolerance: 0.005},
+		coating_thickness: { thickness_min: 0.008, thickness_max: 0.014 },
+		m_unit: "milimeter",
+		program: 53,		
+		notes: "Increased min OD to 0.008mm so it will shrink back in the oven to 0.006mm."  
+
+	},
+	{
 		name :"Biosensor",
 		item : "256403",
 		substractOD: { diameter: 0.675, tolerance: 0.005},
