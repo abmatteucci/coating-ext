@@ -70,6 +70,16 @@ let products = [
 
 	},
 	{
+		name :"JW",
+		item : "313420",
+		substractOD: { diameter: 0.675, tolerance: 0.005},
+		coating_thickness: { thickness_min: 0.008, thickness_max: 0.014 },
+		m_unit: "milimeter",
+		program: 53,		
+		notes: "Increased min OD to 0.008mm so it will shrink back in the oven to 0.006mm."  
+
+	},
+	{
 		name :"Biosensor",
 		item : "256403",
 		substractOD: { diameter: 0.675, tolerance: 0.005},
@@ -1129,122 +1139,5 @@ class JobsScheduler {
         this.currentShift = Job.thisShift(Date.now());
         this.jobParts = [];
         this.jobs = [];
-
-        // Adiciona os eventos de arrastar e soltar
-        this.elementList.addEventListener("mousedown", this.handleMouseDown);
-        this.elementList.addEventListener("mousemove", this.handleMouseMove);
-        this.elementList.addEventListener("mouseup", this.handleMouseUp);
-    }
-
-    static createListElement (text){
-        const li = document.createElement('li');
-        li.textContent = text;
-        li.dataset.jobID = jobID; // Adiciona o jobID como um data attribute
-        li.className = 'item cursor-pointer bg-white text-black p-4 rounded transition-all'; // Adiciona classes do Tailwind
-        li.classList.add('hover:bg-gray-200'); // Adiciona um efeito de hover
-        return li;
-    }
-
-    update(){
-        // Remove list elements.
-        while(this.elementList.firstChild){
-            this.elementList.removeChild(this.elementList.firstChild);
-        }
-
-        if (this.jobs.length > 0) {
-            this.jobs.forEach((job, index) => {
-                const liText = `${index}. ${job.itemID} | ${job.jobID}`;
-                const listItem = JobsScheduler.createListElement(liText);
-                listItem.dataset.jobID = job.jobID; // Adiciona o ID do job como um atributo de dados
-                listItem.addEventListener('mousedown', this.handleMouseDown);
-                this.elementList.appendChild(listItem);
-                this.draggingLine = document.createElement('div');
-                this.draggingLine.className = 'absolute w-full h-2 bg-blue-500 opacity-0';
-                this.elementList.appendChild(this.draggingLine);
-            });
-        }
-
-    }
-
-    // Add Job from form - the element here is a form
-    addJob(elementForm){
-        if (elementForm){
-            // let itemID = elementForm.itemID.value;
-            // let jobID = elementForm.jobID.value;
-            // let qtyJobWires = elementForm.qtyJobWires.value;
-            // let qtyRacks = elementForm.quantidadeRacks.value;
-            // let finishedRacks = elementForm.racksPintados.value;
-            // let testRack = elementForm.testRack.checked;
-
-            let itemID = elementForm.itemID;
-            let jobID = elementForm.jobID;
-            let qtyJobWires = elementForm.qtyJobWires;
-            let qtyRacks = elementForm.quantidadeRacks;
-            let finishedRacks = elementForm.racksPintados;
-            let testRack = elementForm.testRack;
-
-            let metaJob = {
-                itemID: itemID,
-                jobID: jobID,
-                qtyJobWires: qtyJobWires,
-                qtyRacks: qtyRacks,
-                finishedRacks: finishedRacks,
-                testRack: testRack
-            }
-
-            this.jobs.push(metaJob);
-            var message = `metaJob ${metaJob}`;
-            console.log(`${message}.`);
-        }
-    }
-
-    // Funções para arrastar e soltar
-    handleMouseDown = (event) => {
-        console.log("Mouse down.");
-        this.draggingItem = event.target;
-        this.draggingItem.classList.add("dragging", "bg-blue-500");
-        this.draggingLine.style.top = this.draggingItem.offsetTop + 'px';
-        this.draggingLine.style.opacity = '1';
-        // Adiciona animação ao elemento arrastado
-        //this.draggingItem.classList.add("transition-transform ease-in-out 0.2s");
-        this.draggingJobID = this.draggingItem.dataset.jobID; // Obtém o jobID do data attribute
-    }
-
-    handleMouseMove = (event) => {
-        console.log("Mouse move.");
-        if (this.draggingItem) {
-            this.draggingItem.style.left = event.clientX - this.draggingItem.offsetLeft;
-            this.draggingItem.style.top = event.clientY - this.draggingItem.offsetTop;
-            this.draggingLine.style.top = (event.clientY - this.draggingItem.offsetHeight / 2) + 'px';
-        }
-    }
-
-    handleMouseUp = (event) => {
-        console.log("Mouse up.");
-        if (this.draggingItem) {
-            const dropTarget = event.target;
-            const dropJobID = dropTarget.dataset.jobID; // Obtém o jobID do data attribute
-            this.draggingItem.classList.remove("dragging", "bg-blue-500");
-            this.draggingItem.classList.remove("transition-transform");
-            this.draggingLine.style.opacity = '0';
-
-            console.log('Dragging Job ID:', this.draggingJobID);
-            console.log('Drop Job ID:', dropJobID);
-
-            // Troca a ordem dos elementos na lista
-            const tempJob = this.jobs.find(job => job.jobID === this.draggingJobID);
-            const dropJobIndex = this.jobs.findIndex(job => job.jobID === dropJobID);
-
-            this.jobs[this.jobs.findIndex(job => job.jobID === this.draggingJobID)] = this.jobs[dropJobIndex];
-            this.jobs[dropJobIndex] = tempJob;
-
-            // Atualiza a lista
-            this.update();
-        }
     }
 }
-
-
-const listTest = document.getElementById('listTest');
-
-const schedulerElement = new JobsScheduler(listTest);
