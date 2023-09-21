@@ -4,3 +4,11 @@ body {
     background-color: #dedede;
     width: 440px;
 }
+
+.item-container {
+    position: relative;
+}
+
+.absolute {
+    position: absolute;
+}
