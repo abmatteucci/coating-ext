@@ -1216,19 +1216,18 @@ class JobsScheduler {
         // Obtém o contêiner do elemento
         const containerOffset = this.elementList.getBoundingClientRect();
     
+        // Calcula a posição inicial do mouse em relação ao contêiner
+        this.initialMouseX = event.clientX - containerOffset.left;
+        this.initialMouseY = event.clientY - containerOffset.top;
+    
         // Cria um elemento fantasma para seguir o mouse
         this.ghostElement = this.draggingItem.cloneNode(true);
         this.ghostElement.classList.add("ghost");
-        document.body.appendChild(this.ghostElement);
+        this.ghostElement.style.left = this.initialMouseX + 'px';
+        this.ghostElement.style.top = this.initialMouseY + 'px';
+        this.elementList.appendChild(this.ghostElement);
     
         this.draggingJobID = this.draggingItem.dataset.jobID; // Obtém o jobID do data attribute
-        this.draggingLine.style.top = this.draggingItem.offsetTop + 'px';
-        this.draggingLine.style.opacity = '1';
-    
-        // Ajusta a posição do elemento fantasma
-        this.ghostElement.style.left = event.clientX - containerOffset.left + 'px';
-        this.ghostElement.style.top = event.clientY - containerOffset.top + 'px';
-    
         this.draggingLine.style.top = this.draggingItem.offsetTop + 'px';
         this.draggingLine.style.opacity = '1';
     }
@@ -1236,11 +1235,10 @@ class JobsScheduler {
     handleMouseMove = (event) => {
         console.log("Mouse move.");
         if (this.draggingItem) {
-            this.draggingItem.style.left = event.clientX - this.draggingItem.offsetLeft;
-            this.draggingItem.style.top = event.clientY - this.draggingItem.offsetTop;
             // Atualiza a posição do elemento fantasma
-            this.ghostElement.style.left = event.clientX + 'px';
-            this.ghostElement.style.top = event.clientY + 'px';
+            const mouseX = event.clientX - this.initialMouseX;
+            const mouseY = event.clientY - this.initialMouseY;
+            this.ghostElement.style.transform = `translate(${mouseX}px, ${mouseY}px)`;
     
             this.draggingLine.style.top = (event.clientY - this.draggingItem.offsetHeight / 2) + 'px';
         }
@@ -1259,7 +1257,7 @@ class JobsScheduler {
             console.log('Drop Job ID:', dropJobID);
     
             // Remove o elemento fantasma
-            document.body.removeChild(this.ghostElement);
+            this.elementList.removeChild(this.ghostElement);
     
             // Troca a ordem dos elementos na lista
             const tempJob = this.jobs.find(job => job.jobID === this.draggingJobID);
