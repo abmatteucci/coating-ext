@@ -1277,3 +1277,9 @@ class JobsScheduler {
 const elementList = document.getElementById('listTest');
 
 const schedulerElement = new JobsScheduler(elementList);
+
+schedulerElement.addJob(listaDeFormularios[listaDeFormularios.length - 1]);
+schedulerElement.addJob(listaDeFormularios[listaDeFormularios.length - 2]);
+schedulerElement.addJob(listaDeFormularios[listaDeFormularios.length - 3]);
+
+schedulerElement.update();
