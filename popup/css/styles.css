@@ -13,11 +13,42 @@ body {
     transition: none; /* Desabilita a transição enquanto está sendo arrastado */
 }
 
+.item.drag-over {
+    transform: scale(1.1);
+    transition: transform 0.3s;
+}
+
+.item.transitioning {
+    transition: transform 0.3s;
+}
+
+.placeholder {
+    height: 50px; /* Defina a altura do espaço vazio como a altura do item */
+    background-color: #f2f2f2; /* Cor de fundo do espaço vazio */
+    border: 1px dashed #ccc; /* Borda pontilhada para indicar o espaço */
+    margin-bottom: 10px; /* Margem inferior para separar os elementos */
+}
+
+.empty-space {
+    height: 50px; /* Defina a altura do espaço vazio como a altura do item */
+    background-color: #f2f2f2; /* Cor de fundo do espaço vazio */
+    border: 1px dashed #ccc; /* Borda pontilhada para indicar o espaço */
+    margin-bottom: 10px; /* Margem inferior para separar os elementos */
+}
+
 .ghost {
     position: absolute;
     z-index: 1000;
     pointer-events: none;
     /* Adicione estilos de aparência semelhante ao item arrastado */
+    background-color: #dedede;
+    color: #222222;
+    border-radius: 1rem;
+    border-style: dotted;
+    border-color: #222222;
+    border-spacing: 5px;
+    border-width: 2px;
+    padding: 20px;
 }
 
 .item-container {

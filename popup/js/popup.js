@@ -277,7 +277,17 @@ document.addEventListener('DOMContentLoaded', function() {
     carregarDadosArmazenados();
     criarOpcoesSelect(); // Chama a função para criar as opções do select
     carregarJobsArmazenados(); 
+
     // Restante do seu código...
+    const elementList = document.getElementById('listTest');
+
+    const schedulerElement = new JobsScheduler(elementList);
+
+    schedulerElement.addJob(listaDeFormularios[listaDeFormularios.length - 3]);
+    schedulerElement.addJob(listaDeFormularios[listaDeFormularios.length - 2]);
+    schedulerElement.addJob(listaDeFormularios[listaDeFormularios.length - 1]);
+
+    schedulerElement.update();
 });
 
 function carregarDadosArmazenados() {
@@ -1130,33 +1140,29 @@ class Job {
 */
 class JobsScheduler {
 
-    // The element here is a list
     constructor (elementList){
-
-        // Since jobs was loaded from localStorage('jobs').. Perhaps we should implement this loader just here in constructor method.
         this.elementList = elementList;
-        this.jobs = jobs;
-        this.currentShift = Job.thisShift(Date.now());
-        this.jobParts = [];
         this.jobs = [];
+        this.currentShift = this.thisShift(Date.now());
+        this.jobParts = [];
 
         // Adiciona os eventos de arrastar e soltar
-        this.elementList.addEventListener("mousedown", this.handleMouseDown);
-        this.elementList.addEventListener("mousemove", this.handleMouseMove);
-        this.elementList.addEventListener("mouseup", this.handleMouseUp);
+        this.elementList.addEventListener("dragstart", this.handleDragStart.bind(this));
+        this.elementList.addEventListener("dragover", this.handleDragOver.bind(this));
+        this.elementList.addEventListener("drop", this.handleDrop.bind(this));
     }
 
-    static createListElement (text){
-        const li = document.createElement('li');
-        li.textContent = text;
-        li.dataset.jobID = jobID; // Adiciona o jobID como um data attribute
-        li.className = 'item cursor-pointer bg-white text-black p-4 rounded transition-all'; // Adiciona classes do Tailwind
-        li.classList.add('hover:bg-gray-200'); // Adiciona um efeito de hover
-        return li;
+    static createListElement (text, jobID){
+        const div = document.createElement('div');
+        div.textContent = text;
+        div.dataset.jobID = jobID;
+        div.className = 'item cursor-pointer bg-white text-black p-4 rounded transition-all'; 
+        div.classList.add('hover:bg-gray-300'); 
+        div.setAttribute("draggable", "true");
+        return div;
     }
 
     update(){
-        // Remove list elements.
         while(this.elementList.firstChild){
             this.elementList.removeChild(this.elementList.firstChild);
         }
@@ -1164,28 +1170,14 @@ class JobsScheduler {
         if (this.jobs.length > 0) {
             this.jobs.forEach((job, index) => {
                 const liText = `${index}. ${job.itemID} | ${job.jobID}`;
-                const listItem = JobsScheduler.createListElement(liText);
-                listItem.dataset.jobID = job.jobID; // Adiciona o ID do job como um atributo de dados
-                this.draggingLine = document.createElement('div');
-                this.draggingLine.className = 'absolute w-full h-2 bg-blue-500 opacity-0';
-                this.elementList.appendChild(this.draggingLine);
-                listItem.addEventListener('mousedown', this.handleMouseDown);
+                const listItem = JobsScheduler.createListElement(liText, job.jobID);
                 this.elementList.appendChild(listItem);
             });
         }
-
     }
 
-    // Add Job from form - the element here is a form
     addJob(elementForm){
         if (elementForm){
-            // let itemID = elementForm.itemID.value;
-            // let jobID = elementForm.jobID.value;
-            // let qtyJobWires = elementForm.qtyJobWires.value;
-            // let qtyRacks = elementForm.quantidadeRacks.value;
-            // let finishedRacks = elementForm.racksPintados.value;
-            // let testRack = elementForm.testRack.checked;
-
             let itemID = elementForm.itemID;
             let jobID = elementForm.jobID;
             let qtyJobWires = elementForm.qtyJobWires;
@@ -1203,81 +1195,38 @@ class JobsScheduler {
             }
 
             this.jobs.push(metaJob);
-            var message = `metaJob ${metaJob}`;
+            var message = `metaJob ${JSON.stringify(metaJob)}`;
             console.log(`${message}.`);
-        }
-    }
-
-    handleMouseDown = (event) => {
-        console.log("Mouse down.");
-        this.draggingItem = event.target;
-        this.draggingItem.classList.add("dragging", "bg-blue-500");
-    
-        // Obtém o contêiner do elemento
-        const containerOffset = this.elementList.getBoundingClientRect();
-    
-        // Calcula a posição inicial do mouse em relação ao contêiner
-        this.initialMouseX = event.clientX - containerOffset.left;
-        this.initialMouseY = event.clientY - containerOffset.top;
-    
-        // Cria um elemento fantasma para seguir o mouse
-        this.ghostElement = this.draggingItem.cloneNode(true);
-        this.ghostElement.classList.add("ghost");
-        this.ghostElement.style.left = this.initialMouseX + 'px';
-        this.ghostElement.style.top = this.initialMouseY + 'px';
-        this.elementList.appendChild(this.ghostElement);
-    
-        this.draggingJobID = this.draggingItem.dataset.jobID; // Obtém o jobID do data attribute
-        this.draggingLine.style.top = this.draggingItem.offsetTop + 'px';
-        this.draggingLine.style.opacity = '1';
-    }
-    
-    handleMouseMove = (event) => {
-        console.log("Mouse move.");
-        if (this.draggingItem) {
-            // Atualiza a posição do elemento fantasma
-            const mouseX = event.clientX - this.initialMouseX;
-            const mouseY = event.clientY - this.initialMouseY;
-            this.ghostElement.style.transform = `translate(${mouseX}px, ${mouseY}px)`;
-    
-            this.draggingLine.style.top = (event.clientY - this.draggingItem.offsetHeight / 2) + 'px';
-        }
-    }
-    
-    handleMouseUp = (event) => {
-        console.log("Mouse up.");
-        if (this.draggingItem) {
-            const dropTarget = event.target;
-            const dropJobID = dropTarget.dataset.jobID; // Obtém o jobID do data attribute
-            this.draggingItem.classList.remove("dragging", "bg-blue-500");
-            this.draggingItem.classList.remove("transition-transform");
-            this.draggingLine.style.opacity = '0';
-    
-            console.log('Dragging Job ID:', this.draggingJobID);
-            console.log('Drop Job ID:', dropJobID);
-    
-            // Remove o elemento fantasma
-            this.elementList.removeChild(this.ghostElement);
-    
-            // Troca a ordem dos elementos na lista
-            const tempJob = this.jobs.find(job => job.jobID === this.draggingJobID);
-            const dropJobIndex = this.jobs.findIndex(job => job.jobID === dropJobID);
-    
-            this.jobs[this.jobs.findIndex(job => job.jobID === this.draggingJobID)] = this.jobs[dropJobIndex];
-            this.jobs[dropJobIndex] = tempJob;
-    
-            // Atualiza a lista
             this.update();
         }
     }
-}
 
-const elementList = document.getElementById('listTest');
+    thisShift(timestamp) {
+        // Implementação da função thisShift
+    }
 
-const schedulerElement = new JobsScheduler(elementList);
+    handleDragStart(event) {
+        event.dataTransfer.setData("text/plain", event.target.dataset.jobID);
+    }
+    
+    handleDragOver(event) {
+        event.preventDefault();
+    }
+    
+    handleDrop(event) {
+        event.preventDefault();
+        const draggedJobID = event.dataTransfer.getData("text/plain");
+        const dropJobID = event.target.dataset.jobID;
+        
+        const draggedJob = this.jobs.find(job => job.jobID === draggedJobID);
+        const dropJob = this.jobs.find(job => job.jobID === dropJobID);
 
-schedulerElement.addJob(listaDeFormularios[listaDeFormularios.length - 1]);
-schedulerElement.addJob(listaDeFormularios[listaDeFormularios.length - 2]);
-schedulerElement.addJob(listaDeFormularios[listaDeFormularios.length - 3]);
-
-schedulerElement.update();
+        const draggedIndex = this.jobs.indexOf(draggedJob);
+        const dropIndex = this.jobs.indexOf(dropJob);
+        
+        this.jobs[draggedIndex] = dropJob;
+        this.jobs[dropIndex] = draggedJob;
+        
+        this.update();
+    }
+};
