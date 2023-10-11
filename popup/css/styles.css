@@ -51,6 +51,10 @@ body {
     padding: 20px;
 }
 
+.above {
+    border-top: 2px solid blue; /* Adicione um estilo visual para indicar a posição acima */
+}
+
 .item-container {
     position: relative;
 }

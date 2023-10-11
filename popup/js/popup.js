@@ -1211,22 +1211,44 @@ class JobsScheduler {
     
     handleDragOver(event) {
         event.preventDefault();
+    
+        const draggedJobID = event.dataTransfer.getData("text/plain");
+        const dropJobID = event.target.dataset.jobID;
+    
+        const draggedJob = this.jobs.find(job => job.jobID === draggedJobID);
+        const dropJob = this.jobs.find(job => job.jobID === dropJobID);
+    
+        const dropPosition = event.clientY;
+        const targetPosition = event.target.getBoundingClientRect().top + (event.target.offsetHeight / 2);
+    
+        // Se o mouse estiver acima do centro do elemento alvo, adiciona a classe 'above'
+        if (dropPosition < targetPosition) {
+            event.target.classList.add('above');
+        } else {
+            event.target.classList.remove('above');
+        }
     }
     
     handleDrop(event) {
         event.preventDefault();
         const draggedJobID = event.dataTransfer.getData("text/plain");
         const dropJobID = event.target.dataset.jobID;
-        
+    
         const draggedJob = this.jobs.find(job => job.jobID === draggedJobID);
         const dropJob = this.jobs.find(job => job.jobID === dropJobID);
-
-        const draggedIndex = this.jobs.indexOf(draggedJob);
-        const dropIndex = this.jobs.indexOf(dropJob);
-        
-        this.jobs[draggedIndex] = dropJob;
-        this.jobs[dropIndex] = draggedJob;
-        
+    
+        const dropPosition = event.target.getBoundingClientRect().top + (event.target.offsetHeight / 2);
+    
+        // Verifica se o item arrastado está acima do elemento alvo
+        const isAbove = dropPosition > event.clientY;
+    
+        // Remove o item arrastado da lista original
+        this.jobs.splice(this.jobs.indexOf(draggedJob), 1);
+    
+        // Insere o item na nova posição
+        const insertionIndex = this.jobs.indexOf(dropJob) + (isAbove ? 0 : 1);
+        this.jobs.splice(insertionIndex, 0, draggedJob);
+    
         this.update();
     }
 };
