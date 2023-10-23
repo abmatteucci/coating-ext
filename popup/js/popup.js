@@ -275,7 +275,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 document.addEventListener('DOMContentLoaded', function() {
     carregarDadosArmazenados();
-    criarOpcoesSelect(); // Chama a função para criar as opções do select
+    //criarOpcoesSelect(); // Chama a função para criar as opções do select
     carregarJobsArmazenados(); 
 
     // Restante do seu código...
@@ -1150,6 +1150,10 @@ class JobsScheduler {
         this.elementList.addEventListener("dragstart", this.handleDragStart.bind(this));
         this.elementList.addEventListener("dragover", this.handleDragOver.bind(this));
         this.elementList.addEventListener("drop", this.handleDrop.bind(this));
+
+        //this.createJobPopup();
+        this.createAddJobButton();
+        //this.createJobForm();
     }
 
     static createListElement (text, jobID){
@@ -1250,5 +1254,233 @@ class JobsScheduler {
         this.jobs.splice(insertionIndex, 0, draggedJob);
     
         this.update();
+    }
+
+    createJobPopup() {
+        const popupContainer = document.createElement('div');
+        popupContainer.id = 'jobPopup';
+        popupContainer.classList.add('fixed', 'inset-0', 'flex', 'items-center', 'justify-center', 'z-50', 'hidden');
+
+        const modalContainer = document.createElement('div');
+        modalContainer.classList.add('modal-container', 'bg-white', 'w-11/12', 'md:max-w-md', 'mx-auto', 'rounded', 'shadow-lg', 'z-50', 'overflow-y-auto');
+
+        const modalContent = document.createElement('div');
+        modalContent.classList.add('modal-content', 'py-4', 'text-left', 'px-6');
+
+        const modalContentHeader = document.createElement('div');
+        modalContentHeader.classList.add('mt-6', 'text-gray-700');
+        modalContentHeader.innerHTML = "<hr><h1 class='text-2xl strong'>Insert new Job</h1><p>Fill out all the fields in the form to schedule a new job.</p>"
+
+        // const form = this.createJobForm();
+        modalContent.appendChild(modalContentHeader);
+        modalContent.appendChild(this.createJobForm());
+        //this.criarOpcoesSelect();
+
+        // form.querySelector('#itemID').addEventListener('click', () => {
+        //     this.criarOpcoesSelect();
+        // });
+    
+        // modalContent.appendChild(form);
+
+        const closeButton = document.createElement('button');
+        closeButton.id = 'closePopup';
+        closeButton.classList.add('text-gray-700', 'text-right', 'float-right', 'm-4', 'text-2xl', 'font-semibold');
+        closeButton.textContent = '×';
+
+        modalContainer.appendChild(closeButton);
+        modalContainer.appendChild(modalContent);
+        popupContainer.appendChild(modalContainer);
+
+        const popupOverlay = document.createElement('div');
+        popupOverlay.id = 'popupOverlay';
+        popupOverlay.classList.add('fixed', 'inset-0', 'bg-black', 'bg-opacity-50', 'z-40');
+        
+        popupOverlay.appendChild(popupContainer);
+
+        this.elementList.appendChild(popupOverlay);
+
+        // Adiciona evento para fechar o popup
+        closeButton.addEventListener('click', () => {
+            popupOverlay.classList.add('hidden');
+        });
+    }
+
+    createAddJobButton() {
+        const addJobButtonContainer = document.createElement('div');
+        addJobButtonContainer.classList.add('fixed', 'bottom-4', 'right-4');
+
+        const addJobButton = document.createElement('button');
+        addJobButton.id = 'addJobButton';
+        addJobButton.classList.add('bg-blue-500', 'hover:bg-blue-700', 'text-white', 'font-bold', 'py-2', 'px-4', 'rounded');
+        addJobButton.textContent = 'Insert new Job';
+
+        addJobButton.addEventListener('click', () => {
+            const popupOverlay = document.getElementById('popupOverlay');
+            const jobPopup = document.getElementById('jobPopup');
+            //jobPopup.appendChild(this.createJobForm());
+            if (popupOverlay != null){
+                popupOverlay.classList.remove('hidden');
+                jobPopup.classList.remove('hidden');
+            } else {
+                this.createJobPopup();
+                const popupOverlay = document.getElementById('popupOverlay');
+                const jobPopup = document.getElementById('jobPopup');
+                //jobPopup.appendChild(this.createJobForm());
+                popupOverlay.classList.remove('hidden');
+                jobPopup.classList.remove('hidden');
+            }
+        });
+
+        addJobButtonContainer.appendChild(addJobButton);
+        document.querySelector('.scheduler').appendChild(addJobButtonContainer);
+    };
+
+    createJobForm() {
+        const formContainer = document.createElement('div');
+        formContainer.id = 'formulario';
+        formContainer.classList.add('grid', 'grid-cols-2', 'gap-4', 'mt-10', 'mb-4');
+
+        const selectItemID = document.createElement('select');
+        selectItemID.id = 'itemID';
+        selectItemID.name = 'itemID';
+
+        // Adicionando opção padrão
+        const defaultOption = document.createElement('option');
+        defaultOption.value = ''; // Define o valor vazio
+        defaultOption.disabled = true; // Desabilita a opção
+        defaultOption.selected = true; // Define como selecionada por padrão
+        defaultOption.textContent = 'Select itemID'; // Adiciona o texto
+
+        selectItemID.appendChild(defaultOption);
+
+        selectItemID.addEventListener('click', () => {
+            this.criarOpcoesSelect();
+        });
+        
+        const selectPTFE = document.createElement('select');
+        selectPTFE.id = 'ptfe';
+        selectPTFE.name = 'ptfe';
+
+        const defaultOptionPTFE = document.createElement('option');
+        defaultOptionPTFE.value = ''; // Define o valor vazio
+        defaultOptionPTFE.disabled = true; // Desabilita a opção
+        defaultOptionPTFE.selected = true; // Define como selecionada por padrão
+        defaultOptionPTFE.textContent = 'Select PTFE'; // Adiciona o texto
+
+        selectPTFE.appendChild(defaultOptionPTFE);
+
+        selectPTFE.addEventListener('click', () => {
+            this.criarOpcoesSelectPTFE();
+        });
+
+        const inputJobID = document.createElement('input');
+        inputJobID.type = 'text';
+        inputJobID.id = 'jobID';
+        inputJobID.placeholder = 'JobID';
+
+        const inputqtyJobWires = document.createElement('input');
+        inputqtyJobWires.type = 'text';
+        inputqtyJobWires.id = 'qtyJobWires';
+        inputqtyJobWires.placeholder = 'Qty. wires';
+
+        const inputqtyRacks = document.createElement('input');
+        inputqtyRacks.type = 'numbers';
+        inputqtyRacks.id = 'qtyRacks';
+        inputqtyRacks.placeholder = 'Qty. racks';
+
+        const inputFinishedRacks = document.createElement('input');
+        inputFinishedRacks.type = 'numbers';
+        inputFinishedRacks.id = 'qtyRacks';
+        inputFinishedRacks.placeholder = 'Qty. racks';
+
+        const checkboxDiv = document.createElement('div');
+        checkboxDiv.classList.add('flex', 'justify-start', 'space-x-4');
+        checkboxDiv.id = 'testRackDiv';
+
+        const checkTestRack = document.createElement('input');
+        checkTestRack.type = 'checkbox';
+        checkTestRack.id = 'testRack';
+        
+        const labelTestRack = document.createElement('label');
+        labelTestRack.setAttribute('for', 'testRack');
+        labelTestRack.textContent = 'Test Rack';
+
+        checkboxDiv.appendChild(labelTestRack);
+        checkboxDiv.appendChild(checkTestRack);
+
+        // Adicione os outros elementos de input aqui (qtyJobWires, quantidadeRacks, racksPintados, checkbox)
+
+        const submitButton = document.createElement('button');
+        submitButton.id = 'submitButton';
+        submitButton.classList.add('bg-blue-500', 'hover:bg-blue-700', 'text-white', 'font-bold', 'py-2', 'px-4', 'rounded-full', 'mb-6');
+        submitButton.textContent = 'Enviar';
+
+        const cancelButton = document.createElement('button');
+        cancelButton.classList.add('bg-red-500', 'hover:bg-red-700', 'text-white', 'font-bold', 'py-2', 'px-4', 'rounded-full', 'mb-6', 'ml-2');
+        cancelButton.textContent = 'Cancelar';
+
+        cancelButton.addEventListener('click', () => {
+            const popupOverlay = document.getElementById('popupOverlay');
+            popupOverlay.classList.add('hidden');
+        });
+
+        formContainer.appendChild(selectItemID);
+        formContainer.appendChild(selectPTFE);
+        formContainer.appendChild(inputJobID);
+        // Adicione os outros elementos aqui
+        formContainer.appendChild(inputqtyJobWires);
+        formContainer.appendChild(inputqtyRacks);
+        formContainer.appendChild(inputFinishedRacks);
+        formContainer.appendChild(checkboxDiv);
+        formContainer.appendChild(document.createElement('div'));
+        
+        formContainer.appendChild(submitButton);
+        formContainer.appendChild(cancelButton);
+
+        //document.body.appendChild(formContainer);
+        return formContainer;
+    };
+
+    criarOpcoesSelect() {
+
+        var select = document.getElementById('itemID');
+        
+        function optionExists(value) {
+            return Array.from(select.options).some(option => option.value === value);
+        };
+
+        console.log(select);
+        products.forEach(function(product) {
+
+            var optionValue = product.name + " (" + product.item +")";
+            if (!optionExists(optionValue)) {
+                var option = document.createElement('option');
+                option.value = product.name + " (" + product.item +")";
+                option.textContent = product.name + " (" + product.item +")";
+                select.appendChild(option);
+            };
+        });
+    }
+
+    criarOpcoesSelectPTFE() {
+
+        var select = document.getElementById('ptfe');
+
+        function optionExists(value) {
+            return Array.from(select.options).some(option => option.value === value);
+        };
+
+        console.log(select);
+        incs.forEach(function(item) {
+
+            var optionValue = item.itemDescription;
+            
+            if (!optionExists(optionValue)) {
+                var option = document.createElement('option');
+                option.value = item.itemDescription;
+                option.textContent = item.itemDescription;
+                select.appendChild(option);
+            };
+        });
     }
 };
