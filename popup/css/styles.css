@@ -9,8 +9,9 @@ body {
     transition: transform 0.2s ease-in-out;
 }
   
-.item.dragging {
-    transition: none; /* Desabilita a transição enquanto está sendo arrastado */
+.dragging {
+    transform: scale(1.50);
+    background-color: green;
 }
 
 .item.drag-over {
@@ -22,37 +23,8 @@ body {
     transition: transform 0.3s;
 }
 
-.placeholder {
-    height: 50px; /* Defina a altura do espaço vazio como a altura do item */
-    background-color: #f2f2f2; /* Cor de fundo do espaço vazio */
-    border: 1px dashed #ccc; /* Borda pontilhada para indicar o espaço */
-    margin-bottom: 10px; /* Margem inferior para separar os elementos */
-}
-
-.empty-space {
-    height: 50px; /* Defina a altura do espaço vazio como a altura do item */
-    background-color: #f2f2f2; /* Cor de fundo do espaço vazio */
-    border: 1px dashed #ccc; /* Borda pontilhada para indicar o espaço */
-    margin-bottom: 10px; /* Margem inferior para separar os elementos */
-}
-
-.ghost {
-    position: absolute;
-    z-index: 1000;
-    pointer-events: none;
-    /* Adicione estilos de aparência semelhante ao item arrastado */
-    background-color: #dedede;
-    color: #222222;
-    border-radius: 1rem;
-    border-style: dotted;
-    border-color: #222222;
-    border-spacing: 5px;
-    border-width: 2px;
-    padding: 20px;
-}
-
 .above {
-    border-top: 2px solid blue; /* Adicione um estilo visual para indicar a posição acima */
+    border-top: 2px solid gray; /* Adicione um estilo visual para indicar a posição acima */
 }
 
 .item-container {
@@ -61,4 +33,20 @@ body {
 
 .absolute {
     position: absolute;
+}
+
+.ghost {
+    opacity: .5;
+    background: rgb(204, 0, 187);
+}
+
+.chosen {
+    color: #fff;
+    background-color: rgb(204, 0, 187);
+    transform: scale(1.1);
+}
+
+.list-group-item {
+    transition: all .5s;
+    cursor: move;
 }

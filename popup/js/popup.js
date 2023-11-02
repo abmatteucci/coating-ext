@@ -1145,26 +1145,95 @@ class JobsScheduler {
         this.jobs = [];
         this.currentShift = this.thisShift(Date.now());
         this.jobParts = [];
+        
 
         // Adiciona os eventos de arrastar e soltar
-        this.elementList.addEventListener("dragstart", this.handleDragStart.bind(this));
-        this.elementList.addEventListener("dragover", this.handleDragOver.bind(this));
-        this.elementList.addEventListener("drop", this.handleDrop.bind(this));
+        // this.elementList.addEventListener("dragstart", this.handleDragStart.bind(this));
+        // this.elementList.addEventListener("dragover", this.handleDragOver.bind(this));
+        // this.elementList.addEventListener("drop", this.handleDrop.bind(this));
 
         //this.createJobPopup();
-        this.createAddJobButton();
+        this.createSchedulerButtons();
         //this.createJobForm();
-    }
+
+        let sortable = new Sortable(this.elementList, {
+            animation: 150,
+            delayOnTouchOnly: false,
+            touchStartThreshold: 0,
+            easing: "cubic-bezier(0.76, 0, 0.24, 1)",
+            preventOnFilter: true,
+            dragClass: "sortable-drag",
+            dataIdAttr: 'data-job-i-d',
+            chosenClass: 'chosen',
+            ghostClass: 'ghost',
+            group: "localStorage-example",
+            store: {
+                /**
+                 * Get the order of elements. Called once during initialization.
+                 * @param   {Sortable}  sortable
+                 * @returns {Array}
+                 */
+                get: function (sortable) {
+                    var order = localStorage.getItem(sortable.options.group.name);
+                    return order ? order.split('|') : [];
+                },
+
+                /**
+                 * Save the order of elements. Called onEnd (when the item is dropped).
+                 * @param {Sortable}  sortable
+                 */
+                set: function (sortable) {
+                    var order = sortable.toArray();
+                    localStorage.setItem(sortable.options.group.name, order.join('|'));
+                }
+            },
+            // onEnd: (event) => {
+            //     const draggedJobID = event.item.dataset.jobID;
+            //     const dropJobID = event.from.dataset.jobID;
+        
+            //     const draggedJob = this.jobs.find(job => job.jobID === draggedJobID);
+            //     const dropJob = this.jobs.find(job => job.jobID === dropJobID);
+        
+            //     const isAbove = event.newIndex < event.oldIndex;
+        
+            //     this.jobs.splice(this.jobs.indexOf(draggedJob), 1);
+        
+            //     const insertionIndex = this.jobs.indexOf(dropJob) + (isAbove ? 0 : 1);
+            //     this.jobs.splice(insertionIndex, 0, draggedJob);
+        
+            //     console.log("Lista de jobs reordenada:", this.jobs);
+            // }
+        });
+
+        //sortable.save();
+        this.sortable = sortable;
+        this.sorted = this.sortable.toArray();
+    };
 
     static createListElement (text, jobID){
         const div = document.createElement('div');
         div.textContent = text;
         div.dataset.jobID = jobID;
-        div.className = 'item cursor-pointer bg-white text-black p-4 rounded transition-all'; 
-        div.classList.add('hover:bg-gray-300'); 
+        div.className = 'list-group-item p-4 rounded transition-all m-2 border-solid border-1 border-sky-500'; 
+        //div.classList.add('bg-gradient-to-r from-lime-500 to-lime-700'); 
+        try {
+            if (text.toLowerCase().includes('green')){
+                //console.log(`Green: ${text.toLowerCase().includes('green')}`);
+                div.style.backgroundColor = 'rgb(101 163 13)';
+            } else if (text.toLowerCase().includes('black')){
+                //console.log(`Black: ${text.toLowerCase().includes('black')}`);
+                div.style.backgroundColor = 'rgb(22 22 22)';
+                div.style.color = '#fff';
+            } else if (text.toLowerCase().includes('blue')) {
+                //console.log(`Blue: ${text.toLowerCase().includes('blue')}`);
+                div.style.backgroundColor = 'rgb(45 45 145)';
+            }
+        } catch {
+            div.style.backgroundColor = 'rgb(101 163 13)';
+        };
         div.setAttribute("draggable", "true");
         return div;
-    }
+    };
 
     update(){
         while(this.elementList.firstChild){
@@ -1173,51 +1242,63 @@ class JobsScheduler {
 
         if (this.jobs.length > 0) {
             this.jobs.forEach((job, index) => {
-                const liText = `${index}. ${job.itemID} | ${job.jobID}`;
+                //console.log(`Job: ${JSON.stringify(job)}.`);
+                const liText = `${index}. ${job.itemID} | ${job.jobID} | ${job.ptfe}`;
                 const listItem = JobsScheduler.createListElement(liText, job.jobID);
                 this.elementList.appendChild(listItem);
             });
-        }
-    }
+        };
+
+    };
 
     addJob(elementForm){
+        //console.log(`Element Form: ${JSON.stringify(elementForm)}.`);
         if (elementForm){
             let itemID = elementForm.itemID;
+            let ptfe = elementForm.ptfe;
             let jobID = elementForm.jobID;
             let qtyJobWires = elementForm.qtyJobWires;
-            let qtyRacks = elementForm.quantidadeRacks;
-            let finishedRacks = elementForm.racksPintados;
+            let qtyRacks = elementForm.qtyRacks;
+            let coatedWires = elementForm.coatedWires;
             let testRack = elementForm.testRack;
 
             let metaJob = {
                 itemID: itemID,
+                ptfe: ptfe,
                 jobID: jobID,
                 qtyJobWires: qtyJobWires,
                 qtyRacks: qtyRacks,
-                finishedRacks: finishedRacks,
+                coatedWires: coatedWires,
                 testRack: testRack
-            }
+            };
 
             this.jobs.push(metaJob);
-            var message = `metaJob ${JSON.stringify(metaJob)}`;
-            console.log(`${message}.`);
+            //var message = `metaJob ${JSON.stringify(metaJob)}`;
+            //console.log(`${message}.`);
             this.update();
         }
     }
 
     thisShift(timestamp) {
+
         // Implementação da função thisShift
     }
 
     handleDragStart(event) {
+
         event.dataTransfer.setData("text/plain", event.target.dataset.jobID);
+        console.log("drag start: " + event.target.dataset.jobID);
     }
     
     handleDragOver(event) {
+
         event.preventDefault();
     
         const draggedJobID = event.dataTransfer.getData("text/plain");
+        console.log(`handleDragOver: ${draggedJobID}`);
         const dropJobID = event.target.dataset.jobID;
+        // const draggedJobID = event.from.children[event.oldIndex].dataset.jobID;
+        // const dropJobID = event.from.children[event.newIndex].dataset.jobID;
     
         const draggedJob = this.jobs.find(job => job.jobID === draggedJobID);
         const dropJob = this.jobs.find(job => job.jobID === dropJobID);
@@ -1232,31 +1313,50 @@ class JobsScheduler {
             event.target.classList.remove('above');
         }
     }
-    
+
     handleDrop(event) {
-        event.preventDefault();
-        const draggedJobID = event.dataTransfer.getData("text/plain");
-        const dropJobID = event.target.dataset.jobID;
-    
+        const draggedJobID = event.item.dataset.jobID;
+        const dropJobID = event.from.dataset.jobID;
+      
         const draggedJob = this.jobs.find(job => job.jobID === draggedJobID);
         const dropJob = this.jobs.find(job => job.jobID === dropJobID);
-    
-        const dropPosition = event.target.getBoundingClientRect().top + (event.target.offsetHeight / 2);
-    
-        // Verifica se o item arrastado está acima do elemento alvo
-        const isAbove = dropPosition > event.clientY;
-    
-        // Remove o item arrastado da lista original
+      
+        const isAbove = event.newIndex < event.oldIndex;
+      
         this.jobs.splice(this.jobs.indexOf(draggedJob), 1);
-    
-        // Insere o item na nova posição
+      
         const insertionIndex = this.jobs.indexOf(dropJob) + (isAbove ? 0 : 1);
         this.jobs.splice(insertionIndex, 0, draggedJob);
-    
+      
         this.update();
-    }
+    };
+    
+    // handleDrop(event) {
+
+    //     event.preventDefault();
+    //     const draggedJobID = event.dataTransfer.getData("text/plain");
+    //     const dropJobID = event.target.dataset.jobID;
+    
+    //     const draggedJob = this.jobs.find(job => job.jobID === draggedJobID);
+    //     const dropJob = this.jobs.find(job => job.jobID === dropJobID);
+    
+    //     const dropPosition = event.target.getBoundingClientRect().top + (event.target.offsetHeight / 2);
+    
+    //     // Verifica se o item arrastado está acima do elemento alvo
+    //     const isAbove = dropPosition > event.clientY;
+    
+    //     // Remove o item arrastado da lista original
+    //     this.jobs.splice(this.jobs.indexOf(draggedJob), 1);
+    
+    //     // Insere o item na nova posição
+    //     const insertionIndex = this.jobs.indexOf(dropJob) + (isAbove ? 0 : 1);
+    //     this.jobs.splice(insertionIndex, 0, draggedJob);
+    
+    //     this.update();
+    // }
 
     createJobPopup() {
+
         const popupContainer = document.createElement('div');
         popupContainer.id = 'jobPopup';
         popupContainer.classList.add('fixed', 'inset-0', 'flex', 'items-center', 'justify-center', 'z-50', 'hidden');
@@ -1294,10 +1394,12 @@ class JobsScheduler {
         const popupOverlay = document.createElement('div');
         popupOverlay.id = 'popupOverlay';
         popupOverlay.classList.add('fixed', 'inset-0', 'bg-black', 'bg-opacity-50', 'z-40');
-        
+        popupOverlay.classList.remove('chosen');
         popupOverlay.appendChild(popupContainer);
 
-        this.elementList.appendChild(popupOverlay);
+        const mainContainer = document.getElementById('content');
+        mainContainer.appendChild(popupOverlay);
+        //this.elementList.appendChild(popupOverlay);
 
         // Adiciona evento para fechar o popup
         closeButton.addEventListener('click', () => {
@@ -1305,13 +1407,76 @@ class JobsScheduler {
         });
     }
 
-    createAddJobButton() {
-        const addJobButtonContainer = document.createElement('div');
-        addJobButtonContainer.classList.add('fixed', 'bottom-4', 'right-4');
+    createPreviewPopup() {
+
+        const popupContainer = document.createElement('div');
+        popupContainer.id = 'previewPopup';
+        popupContainer.classList.add('fixed', 'inset-0', 'flex', 'items-center', 'justify-center', 'z-50', 'hidden', 'overflow-y-auto');
+
+        const modalContainer = document.createElement('div');
+        modalContainer.classList.add('modal-container', 'bg-white', 'w-11/12', 'md:max-w-md', 'mx-auto', 'rounded', 'shadow-lg', 'z-40');
+        //modalContainer.style.maxHeight = '80vh';
+
+        const modalContent = document.createElement('div');
+        modalContent.classList.add('modal-content', 'py-4', 'text-left', 'px-6');
+        modalContent.style.maxHeight = '80vh';
+        modalContent.style.overflowY = 'auto';
+
+        const modalContentHeader = document.createElement('div');
+        modalContentHeader.classList.add('mt-6', 'text-gray-700');
+        modalContentHeader.innerHTML = "<hr><h1 class='text-2xl strong'>Preview schedulling...</h1><p>Preview only... for now.</p>"
+
+        // const form = this.createJobForm();
+        modalContent.appendChild(modalContentHeader);
+        modalContent.appendChild(this.createEventCalendar());
+        //this.criarOpcoesSelect();
+
+        // form.querySelector('#itemID').addEventListener('click', () => {
+        //     this.criarOpcoesSelect();
+        // });
+    
+        // modalContent.appendChild(form);
+
+        const closeButton = document.createElement('button');
+        closeButton.id = 'closePreview';
+        closeButton.classList.add('text-gray-700', 'text-right', 'float-right', 'm-4', 'text-2xl', 'font-semibold');
+        closeButton.textContent = '×';
+
+        modalContainer.appendChild(closeButton);
+        modalContainer.appendChild(modalContent);
+        popupContainer.appendChild(modalContainer);
+
+        const popupOverlay = document.createElement('div');
+        popupOverlay.id = 'popupOverlay';
+        popupOverlay.classList.add('fixed', 'inset-0', 'bg-black', 'bg-opacity-50', 'z-40', 'overflow-y-auto');
+        popupOverlay.classList.remove('chosen');
+        popupOverlay.appendChild(popupContainer);
+
+        const mainContainer = document.getElementById('content');
+        const overlayComponent = document.getElementById('popupOverlay');
+        if (overlayComponent){
+            mainContainer.removeChild(overlayComponent);
+        }
+        
+        mainContainer.appendChild(popupOverlay);
+        //this.elementList.appendChild(popupOverlay);
+
+        // Adiciona evento para fechar o popup
+        closeButton.addEventListener('click', () => {
+            popupOverlay.classList.add('hidden');
+        });
+    }
+
+    createSchedulerButtons() {
+        const schedulerButtonsContainer = document.createElement('div');
+        schedulerButtonsContainer.classList.add('fixed', 'bottom-4', 'right-4');
 
         const addJobButton = document.createElement('button');
         addJobButton.id = 'addJobButton';
-        addJobButton.classList.add('bg-blue-500', 'hover:bg-blue-700', 'text-white', 'font-bold', 'py-2', 'px-4', 'rounded');
+        addJobButton.title = 'Insert new Job';
+        addJobButton.ariaLabel = 'Insert new Job button';
+        addJobButton.type = 'button';
+        addJobButton.classList.add('bg-blue-500', 'hover:bg-blue-700', 'text-white', 'font-bold', 'py-2', 'px-4', 'rounded-full', 'm-4');
         addJobButton.textContent = 'Insert new Job';
 
         addJobButton.addEventListener('click', () => {
@@ -1331,11 +1496,69 @@ class JobsScheduler {
             }
         });
 
-        addJobButtonContainer.appendChild(addJobButton);
-        document.querySelector('.scheduler').appendChild(addJobButtonContainer);
+        const previewSchedulerButton = document.createElement('button');
+        previewSchedulerButton.id = 'previewSchedulerButton';
+        previewSchedulerButton.title = "Preview";
+        previewSchedulerButton.ariaLabel = "Preview Scheduler Button";
+        previewSchedulerButton.type = "button";
+        previewSchedulerButton.classList.add('bg-blue-500', 'hover:bg-blue-700', 'text-white', 'font-bold', 'py-2', 'px-4', 'rounded-full', 'm-4');
+        previewSchedulerButton.textContent = "Preview";
+
+        previewSchedulerButton.addEventListener('click', () => {
+            const popupOverlay = document.getElementById('popupOverlay');
+            const previewPopup = document.getElementById('previewPopup');
+            //jobPopup.appendChild(this.createJobForm());
+            if (popupOverlay != null){
+                popupOverlay.classList.remove('hidden');
+                previewPopup.classList.remove('hidden');
+            } else {
+                this.createPreviewPopup();
+                const popupOverlay = document.getElementById('popupOverlay');
+                const previewPopup = document.getElementById('previewPopup');
+                //jobPopup.appendChild(this.createJobForm());
+                popupOverlay.classList.remove('hidden');
+                previewPopup.classList.remove('hidden');
+            }
+
+            this.sorted = this.sortable.toArray();
+            console.log(`this.sorted: ${this.sorted}`);
+        });
+
+        schedulerButtonsContainer.appendChild(addJobButton);
+        schedulerButtonsContainer.appendChild(previewSchedulerButton);
+        document.querySelector('.scheduler').appendChild(schedulerButtonsContainer);
     };
 
+    createEventCalendar(){
+        const ecContainer = document.createElement('div');
+        ecContainer.id = 'ecContainer';
+
+        const ecContent = document.createElement('div');
+        ecContent.id = 'ecContent';
+        let ec = new EventCalendar(ecContent, {
+            view: 'timeGridDay',
+            nowIndicator: true,
+            slotDuration: '03:00:00',
+            events: [
+
+            ]
+        })
+        ecContainer.appendChild(ecContent);
+        this.generateEvents();
+        return ecContainer;
+    };
+
+    generateEvents(){
+        let events = [];
+        //this.sorted = this.sortable.toArray();
+        console.log(`this.sorted in generateEvents(): ${JSON.stringify(this.sortable.toArray())}`);
+        this.jobs.forEach((job) => {
+            console.log(`Job in generateEvents() forEach(): ${JSON.stringify(job)}`);
+        });
+    }
+
     createJobForm() {
+
         const formContainer = document.createElement('div');
         formContainer.id = 'formulario';
         formContainer.classList.add('grid', 'grid-cols-2', 'gap-4', 'mt-10', 'mb-4');
@@ -1354,12 +1577,12 @@ class JobsScheduler {
         selectItemID.appendChild(defaultOption);
 
         selectItemID.addEventListener('click', () => {
-            this.criarOpcoesSelect();
+            this.criarOpcoesSelectItemID();
         });
         
-        const selectPTFE = document.createElement('select');
-        selectPTFE.id = 'ptfe';
-        selectPTFE.name = 'ptfe';
+        const selectPTFEMaterial = document.createElement('select');
+        selectPTFEMaterial.id = 'ptfe';
+        selectPTFEMaterial.name = 'ptfe';
 
         const defaultOptionPTFE = document.createElement('option');
         defaultOptionPTFE.value = ''; // Define o valor vazio
@@ -1367,9 +1590,9 @@ class JobsScheduler {
         defaultOptionPTFE.selected = true; // Define como selecionada por padrão
         defaultOptionPTFE.textContent = 'Select PTFE'; // Adiciona o texto
 
-        selectPTFE.appendChild(defaultOptionPTFE);
+        selectPTFEMaterial.appendChild(defaultOptionPTFE);
 
-        selectPTFE.addEventListener('click', () => {
+        selectPTFEMaterial.addEventListener('click', () => {
             this.criarOpcoesSelectPTFE();
         });
 
@@ -1390,8 +1613,8 @@ class JobsScheduler {
 
         const inputFinishedRacks = document.createElement('input');
         inputFinishedRacks.type = 'numbers';
-        inputFinishedRacks.id = 'qtyRacks';
-        inputFinishedRacks.placeholder = 'Qty. racks';
+        inputFinishedRacks.id = 'coatedWires';
+        inputFinishedRacks.placeholder = 'Qty. coated wires';
 
         const checkboxDiv = document.createElement('div');
         checkboxDiv.classList.add('flex', 'justify-start', 'space-x-4');
@@ -1413,11 +1636,31 @@ class JobsScheduler {
         const submitButton = document.createElement('button');
         submitButton.id = 'submitButton';
         submitButton.classList.add('bg-blue-500', 'hover:bg-blue-700', 'text-white', 'font-bold', 'py-2', 'px-4', 'rounded-full', 'mb-6');
-        submitButton.textContent = 'Enviar';
+        submitButton.textContent = 'Add';
+
+        submitButton.addEventListener('click', () => {
+            var formData = {
+                itemID: document.getElementById('itemID').value,
+                ptfe: document.getElementById('ptfe').value,
+                jobID: document.getElementById('jobID').value,
+                qtyJobWires: parseInt(document.getElementById('qtyJobWires').value),
+                qtyRacks: parseInt(document.getElementById('qtyRacks').value),
+                coatedWires: parseInt(document.getElementById('coatedWires').value),
+                testRack: document.getElementById('testRack').checked,
+                horarioInclusao: parseInt(Date.now()),
+                program: null
+            };
+
+            console.log(`New Job view: ${formData}`);
+            this.addJob(formData);
+            this.update();
+            listaDeFormularios.push(formData);
+            salvarDadosArmazenados();
+        })
 
         const cancelButton = document.createElement('button');
         cancelButton.classList.add('bg-red-500', 'hover:bg-red-700', 'text-white', 'font-bold', 'py-2', 'px-4', 'rounded-full', 'mb-6', 'ml-2');
-        cancelButton.textContent = 'Cancelar';
+        cancelButton.textContent = 'Cancel';
 
         cancelButton.addEventListener('click', () => {
             const popupOverlay = document.getElementById('popupOverlay');
@@ -1425,7 +1668,7 @@ class JobsScheduler {
         });
 
         formContainer.appendChild(selectItemID);
-        formContainer.appendChild(selectPTFE);
+        formContainer.appendChild(selectPTFEMaterial);
         formContainer.appendChild(inputJobID);
         // Adicione os outros elementos aqui
         formContainer.appendChild(inputqtyJobWires);
@@ -1441,10 +1684,10 @@ class JobsScheduler {
         return formContainer;
     };
 
-    criarOpcoesSelect() {
+    criarOpcoesSelectItemID() {
 
         var select = document.getElementById('itemID');
-        
+
         function optionExists(value) {
             return Array.from(select.options).some(option => option.value === value);
         };
