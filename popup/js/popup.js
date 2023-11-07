@@ -1065,55 +1065,73 @@ Objects in memory:
 
 class Job {
 
-    constructor (jobID, itemID, startTime, qtyJobWires, qtyRacks) {
+    constructor (jobID, itemID, ptfeMaterial, startTime, qtyJobWires, qtyRacks) {
         this.jobID = jobID;
         this.itemID = itemID;
+        this.ptfeMaterial = ptfeMaterial;
         this.startTime = startTime;
         this.qtyJobWires =qtyJobWires;
         this.qtyRacks = qtyRacks;
-        this.startShift = this.thisShift(this.startTime);
+        this.startShift = Job.thisShift(this.startTime);
         this.endTimePrevision = this.startTime + this.stdTimeToFinish();
-        this.endShift = this.thisShift(this.endTimePrevision);
+        this.endShift = Job.thisShift(this.endTimePrevision);
         this.isStarted = false;
         this.isFinished = false;
         this.finishedWires = 0; 
     }
 
     // Setters
+    setStartTime (newStartTime){
+        this.startTime = newStartTime;
+        this.endTimePrevision = this.startTime + this.stdTimeToFinish();
+        this.startShift = Job.thisShift(this.startTime);
+        this.endShift = Job.thisShift(this.endTimePrevision);
+    };
 
-    set qtyRacks (qty){
+    // set ptfeMaterial (ptfeMaterial){
+    //     this.ptfeMaterial = ptfeMaterial;
+    // }
+
+    setQtyRacks (qty){
         this.qtyRacks = qty;
-    }
+    };
 
-    set isStarted (value){
+    setIsStarted (value){
         this.isStarted = value;
-    }
+    };
 
-    set isFinished (value){
+    setIsFinished (value){
         this.isFinished = value;
-    }
+    };
 
-    set finishedWires (qtyWires){
+    setFinishedWires (qtyWires){
         this.finishedWires = qtyWires;
-    }
+    };
 
     // Getters
+    getStartTime(){
+        return this.startTime;
+    };
 
-    get isStarted(){
+    getIsStarted(){
         return this.isStarted;
-    }
+    };
 
-    get isFinished(){
+    getIsFinished(){
         return this.isFinished;
-    }
+    };
 
-    get finishedWires (){
+    getFinishedWires (){
         return this.finishedWires;
-    }
+    };
+
+    // get ptfeMaterial (){
+    //     return this.ptfeMaterial;
+    // }
 
     stdTimeToFinish(){
         return parseInt(((this.qtyJobWires / 40) / this.qtyRacks) * (60 * 60 * 1000));
-    }
+    };
 
     static thisShift(date){
         var horaAtual = new Date(date).getHours();
@@ -1204,6 +1222,15 @@ class JobsScheduler {
             //     console.log("Lista de jobs reordenada:", this.jobs);
             // }
         });
+        this.ecContent = document.createElement('div');
+        this.ec = new EventCalendar(this.ecContent, {
+            view: 'timeGridDay',
+            nowIndicator: true,
+            slotDuration: '03:00:00',
+            events: [
+
+            ]
+        });
 
         //sortable.save();
         this.sortable = sortable;
@@ -1243,7 +1270,7 @@ class JobsScheduler {
         if (this.jobs.length > 0) {
             this.jobs.forEach((job, index) => {
                 //console.log(`Job: ${JSON.stringify(job)}.`);
-                const liText = `${index}. ${job.itemID} | ${job.jobID} | ${job.ptfe}`;
+                const liText = `${index}. ${job.itemID} | ${job.jobID} | ${job.ptfeMaterial}`;
                 const listItem = JobsScheduler.createListElement(liText, job.jobID);
                 this.elementList.appendChild(listItem);
             });
@@ -1262,6 +1289,8 @@ class JobsScheduler {
             let coatedWires = elementForm.coatedWires;
             let testRack = elementForm.testRack;
 
+            const job = new Job(jobID, itemID, ptfe, Date.now(), qtyJobWires, qtyRacks);
+
             let metaJob = {
                 itemID: itemID,
                 ptfe: ptfe,
@@ -1272,9 +1301,9 @@ class JobsScheduler {
                 testRack: testRack
             };
 
-            this.jobs.push(metaJob);
+            this.jobs.push(job);
             //var message = `metaJob ${JSON.stringify(metaJob)}`;
-            //console.log(`${message}.`);
+            console.log(`addJobs startTime: ${JSON.stringify(Date(job.startTime))}.`);
             this.update();
         }
     }
@@ -1521,6 +1550,31 @@ class JobsScheduler {
             }
 
             this.sorted = this.sortable.toArray();
+            this.sorted.forEach((jobID, index) => {
+                console.log(`jobID and index: ${jobID} | ${index}.`);
+                let job = this.jobs.find(job => job.jobID === jobID);
+                console.log(`Var Job inside eventListener: ${JSON.stringify(job)}`);
+                if (index == 0) {
+                    this.ec.addEvent({
+                        id: `${index}-${job.itemID}-${job.jobID}-${job.ptfeMaterial}`,
+                        title: `${index}. ${job.itemID} | ${job.jobID} | ${job.ptfeMaterial}`,
+                        start: new Date(job.startTime),
+                        end: new Date(job.endTimePrevision),
+                        backgroundColor: job.ptfeMaterial.toLowerCase().includes('green') ? 'rgb(101 163 13)' : job.ptfeMaterial.toLowerCase().includes('black') ? 'rgb(22 22 22)' : job.ptfeMaterial.toLowerCase().includes('blue') ? 'rgb(45 45 145)' : none,
+                    });
+                } else {
+                    const _events = this.ec.getEvents();
+                    console.log(`ec.events: ${JSON.stringify(this.ec.getEvents())}.`);
+                    job.setStartTime(_events[index -1].end);
+                    this.ec.addEvent({
+                        id: `${index}-${job.itemID}-${job.jobID}-${job.ptfeMaterial}`,
+                        title: `${index}. ${job.itemID} | ${job.jobID} | ${job.ptfeMaterial}`,
+                        start: new Date(job.startTime),
+                        end: new Date(job.startTime + job.stdTimeToFinish()),
+                        backgroundColor: job.ptfeMaterial.toLowerCase().includes('green') ? 'rgb(101 163 13)' : job.ptfeMaterial.toLowerCase().includes('black') ? 'rgb(22 22 22)' : job.ptfeMaterial.toLowerCase().includes('blue') ? 'rgb(45 45 145)' : none,
+                    });
+                }
+            }) 
             console.log(`this.sorted: ${this.sorted}`);
         });
 
@@ -1533,22 +1587,22 @@ class JobsScheduler {
         const ecContainer = document.createElement('div');
         ecContainer.id = 'ecContainer';
 
-        const ecContent = document.createElement('div');
-        ecContent.id = 'ecContent';
-        let ec = new EventCalendar(ecContent, {
-            view: 'timeGridDay',
-            nowIndicator: true,
-            slotDuration: '03:00:00',
-            events: [
+        // const ecContent = document.createElement('div');
+        // ecContent.id = 'ecContent';
+        // let ec = new EventCalendar(ecContent, {
+        //     view: 'timeGridDay',
+        //     nowIndicator: true,
+        //     slotDuration: '03:00:00',
+        //     events: [
 
-            ]
-        })
-        ecContainer.appendChild(ecContent);
-        this.generateEvents();
+        //     ]
+        // })
+        ecContainer.appendChild(this.ecContent);
+        this.generateEvents(this.ec);
         return ecContainer;
     };
 
-    generateEvents(){
+    generateEvents(obj){
         let events = [];
         //this.sorted = this.sortable.toArray();
         console.log(`this.sorted in generateEvents(): ${JSON.stringify(this.sortable.toArray())}`);
