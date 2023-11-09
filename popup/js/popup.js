@@ -1081,12 +1081,12 @@ class Job {
     }
 
     // Setters
-    setStartTime (newStartTime){
-        this.startTime = newStartTime;
-        this.endTimePrevision = this.startTime + this.stdTimeToFinish();
-        this.startShift = Job.thisShift(this.startTime);
-        this.endShift = Job.thisShift(this.endTimePrevision);
-    };
+    // setStartTime (value){
+    //     this.startTime = value;
+    //     this.endTimePrevision = this.startTime + this.stdTimeToFinish();
+    //     this.startShift = Job.thisShift(this.startTime);
+    //     this.endShift = Job.thisShift(this.endTimePrevision);
+    // };
 
     // set ptfeMaterial (ptfeMaterial){
     //     this.ptfeMaterial = ptfeMaterial;
@@ -1131,6 +1131,18 @@ class Job {
 
     stdTimeToFinish(){
         return parseInt(((this.qtyJobWires / 40) / this.qtyRacks) * (60 * 60 * 1000));
+    };
+
+    static updateJob(job, startTime){
+        job.startTime = startTime;
+        console.log(`job.startTime inside updateJob(): ${job.startTime}`);
+        console.log(`startTime parameter inside updateJob(): ${startTime}`);
+        job.endTimePrevision = job.startTime + job.stdTimeToFinish();
+        console.log(`job.endTimePrevision inside updateJob(): ${job.endTimePrevision}`);
+        console.log(`job.stdTimeToFinish(): ${job.stdTimeToFinish()}`);
+        job.startShift = Job.thisShift(job.startTime);
+        job.endShift = Job.thisShift(job.endTimePrevision);
+        return job;
     };
 
     static thisShift(date){
@@ -1551,9 +1563,9 @@ class JobsScheduler {
 
             this.sorted = this.sortable.toArray();
             this.sorted.forEach((jobID, index) => {
-                console.log(`jobID and index: ${jobID} | ${index}.`);
+                //console.log(`jobID and index: ${jobID} | ${index}.`);
                 let job = this.jobs.find(job => job.jobID === jobID);
-                console.log(`Var Job inside eventListener: ${JSON.stringify(job)}`);
+                
                 if (index == 0) {
                     this.ec.addEvent({
                         id: `${index}-${job.itemID}-${job.jobID}-${job.ptfeMaterial}`,
@@ -1564,18 +1576,22 @@ class JobsScheduler {
                     });
                 } else {
                     const _events = this.ec.getEvents();
-                    console.log(`ec.events: ${JSON.stringify(this.ec.getEvents())}.`);
-                    job.setStartTime(_events[index -1].end);
+                    console.log(`this.sorted[index -1]: ${this.sorted[index -1]}`);
+                    let previous_job = this.jobs.find(job => job.jobID === this.sorted[index -1]);
+                    console.log(`previous_job: ${JSON.stringify(previous_job)}`);
+                    job = Job.updateJob(job, previous_job.endTimePrevision);
                     this.ec.addEvent({
                         id: `${index}-${job.itemID}-${job.jobID}-${job.ptfeMaterial}`,
                         title: `${index}. ${job.itemID} | ${job.jobID} | ${job.ptfeMaterial}`,
                         start: new Date(job.startTime),
-                        end: new Date(job.startTime + job.stdTimeToFinish()),
+                        end: new Date(job.endTimePrevision),
                         backgroundColor: job.ptfeMaterial.toLowerCase().includes('green') ? 'rgb(101 163 13)' : job.ptfeMaterial.toLowerCase().includes('black') ? 'rgb(22 22 22)' : job.ptfeMaterial.toLowerCase().includes('blue') ? 'rgb(45 45 145)' : none,
                     });
                 }
+                console.log(`ec.events: ${JSON.stringify(this.ec.getEvents())}.`);
+                //console.log(`Var Job inside eventListener: ${JSON.stringify(job)}`);
             }) 
-            console.log(`this.sorted: ${this.sorted}`);
+            //console.log(`this.sorted: ${this.sorted}`);
         });
 
         schedulerButtonsContainer.appendChild(addJobButton);
