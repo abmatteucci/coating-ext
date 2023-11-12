@@ -1439,12 +1439,19 @@ class JobsScheduler {
         popupOverlay.appendChild(popupContainer);
 
         const mainContainer = document.getElementById('content');
+        // const overlayComponent = document.getElementById('popupOverlay');
+        // if (overlayComponent){
+        //     mainContainer.removeChild(overlayComponent);
+        // }
         mainContainer.appendChild(popupOverlay);
         //this.elementList.appendChild(popupOverlay);
 
         // Adiciona evento para fechar o popup
         closeButton.addEventListener('click', () => {
-            popupOverlay.classList.add('hidden');
+            if (popupOverlay){
+                mainContainer.removeChild(popupOverlay);
+            }
+            //popupOverlay.classList.add('hidden');
         });
     }
 
@@ -1494,17 +1501,18 @@ class JobsScheduler {
         popupOverlay.appendChild(popupContainer);
 
         const mainContainer = document.getElementById('content');
-        const overlayComponent = document.getElementById('popupOverlay');
-        if (overlayComponent){
-            mainContainer.removeChild(overlayComponent);
-        }
+        
         
         mainContainer.appendChild(popupOverlay);
         //this.elementList.appendChild(popupOverlay);
 
         // Adiciona evento para fechar o popup
         closeButton.addEventListener('click', () => {
-            popupOverlay.classList.add('hidden');
+            
+            if (popupOverlay){
+                mainContainer.removeChild(popupOverlay);
+            }
+            //popupOverlay.classList.add('hidden');
         });
     }
 
@@ -1521,12 +1529,20 @@ class JobsScheduler {
         addJobButton.textContent = 'Insert new Job';
 
         addJobButton.addEventListener('click', () => {
+            const mainContainer = document.getElementById('content');
             const popupOverlay = document.getElementById('popupOverlay');
             const jobPopup = document.getElementById('jobPopup');
+            
+            if (popupOverlay){
+                mainContainer.removeChild(popupOverlay);
+                this.createJobPopup();
+            }
             //jobPopup.appendChild(this.createJobForm());
             if (popupOverlay != null){
                 popupOverlay.classList.remove('hidden');
-                jobPopup.classList.remove('hidden');
+                if (jobPopup != null) {
+                    jobPopup.classList.remove('hidden');
+                };
             } else {
                 this.createJobPopup();
                 const popupOverlay = document.getElementById('popupOverlay');
@@ -1550,8 +1566,9 @@ class JobsScheduler {
             const previewPopup = document.getElementById('previewPopup');
             //jobPopup.appendChild(this.createJobForm());
             if (popupOverlay != null){
+                console.log(`previewPopup: ${previewPopup}`);
                 popupOverlay.classList.remove('hidden');
-                previewPopup.classList.remove('hidden');
+                previewPopup != null ? previewPopup.classList.remove('hidden') : null;
             } else {
                 this.createPreviewPopup();
                 const popupOverlay = document.getElementById('popupOverlay');
@@ -1733,8 +1750,12 @@ class JobsScheduler {
         cancelButton.textContent = 'Cancel';
 
         cancelButton.addEventListener('click', () => {
+            const mainContainer = document.getElementById('content');
             const popupOverlay = document.getElementById('popupOverlay');
-            popupOverlay.classList.add('hidden');
+            if (popupOverlay){
+                mainContainer.removeChild(popupOverlay);
+            }
+            //popupOverlay.classList.add('hidden');
         });
 
         formContainer.appendChild(selectItemID);
